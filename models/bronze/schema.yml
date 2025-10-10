@@ -1,0 +1,422 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw data from Zoom platform
+    tables:
+      - name: users
+        description: Raw user data from Zoom
+        columns:
+          - name: user_id
+            description: Unique identifier for a user
+          - name: user_name
+            description: Name of the user
+          - name: email
+            description: Email address of the user
+          - name: company
+            description: Company the user belongs to
+          - name: plan_type
+            description: Type of Zoom plan the user has
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+      - name: meetings
+        description: Raw meeting data from Zoom
+        columns:
+          - name: meeting_id
+            description: Unique identifier for a meeting
+          - name: host_id
+            description: ID of the user hosting the meeting
+          - name: meeting_topic
+            description: Topic of the meeting
+          - name: start_time
+            description: Start time of the meeting
+          - name: end_time
+            description: End time of the meeting
+          - name: duration_minutes
+            description: Duration of the meeting in minutes
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+      - name: participants
+        description: Raw participant data from Zoom meetings
+        columns:
+          - name: participant_id
+            description: Unique identifier for a participant
+          - name: meeting_id
+            description: ID of the meeting the participant attended
+          - name: user_id
+            description: ID of the user who participated
+          - name: join_time
+            description: Time when the participant joined the meeting
+          - name: leave_time
+            description: Time when the participant left the meeting
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+      - name: feature_usage
+        description: Raw feature usage data from Zoom
+        columns:
+          - name: usage_id
+            description: Unique identifier for a feature usage record
+          - name: meeting_id
+            description: ID of the meeting where the feature was used
+          - name: feature_name
+            description: Name of the feature used
+          - name: usage_count
+            description: Count of how many times the feature was used
+          - name: usage_date
+            description: Date when the feature was used
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+      - name: webinars
+        description: Raw webinar data from Zoom
+        columns:
+          - name: webinar_id
+            description: Unique identifier for a webinar
+          - name: host_id
+            description: ID of the user hosting the webinar
+          - name: webinar_topic
+            description: Topic of the webinar
+          - name: start_time
+            description: Start time of the webinar
+          - name: end_time
+            description: End time of the webinar
+          - name: registrants
+            description: Number of registrants for the webinar
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+      - name: support_tickets
+        description: Raw support ticket data from Zoom
+        columns:
+          - name: ticket_id
+            description: Unique identifier for a support ticket
+          - name: user_id
+            description: ID of the user who created the ticket
+          - name: ticket_type
+            description: Type of support ticket
+          - name: resolution_status
+            description: Current status of ticket resolution
+          - name: open_date
+            description: Date when the ticket was opened
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+      - name: licenses
+        description: Raw license data from Zoom
+        columns:
+          - name: license_id
+            description: Unique identifier for a license
+          - name: license_type
+            description: Type of license
+          - name: assigned_to_user_id
+            description: ID of the user the license is assigned to
+          - name: start_date
+            description: Start date of the license
+          - name: end_date
+            description: End date of the license
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+      - name: billing_events
+        description: Raw billing event data from Zoom
+        columns:
+          - name: event_id
+            description: Unique identifier for a billing event
+          - name: user_id
+            description: ID of the user associated with the billing event
+          - name: event_type
+            description: Type of billing event
+          - name: amount
+            description: Amount associated with the billing event
+          - name: event_date
+            description: Date of the billing event
+          - name: load_timestamp
+            description: Timestamp when the record was loaded
+          - name: update_timestamp
+            description: Timestamp when the record was last updated
+          - name: source_system
+            description: Source system of the data
+
+models:
+  - name: bz_audit_log
+    description: Audit log table to track processing of bronze layer models
+    columns:
+      - name: record_id
+        description: Unique identifier for an audit log record
+        data_type: NUMBER
+      - name: source_table
+        description: Name of the source table being processed
+        data_type: VARCHAR(255)
+      - name: load_timestamp
+        description: Timestamp when the processing occurred
+        data_type: TIMESTAMP_NTZ
+      - name: processed_by
+        description: Name of the process or user that performed the processing
+        data_type: VARCHAR(100)
+      - name: processing_time
+        description: Time taken to process the data in seconds
+        data_type: NUMBER
+      - name: status
+        description: Status of the processing (SUCCESS, ERROR)
+        data_type: VARCHAR(50)
+
+  - name: bz_users
+    description: Bronze layer table for user data
+    columns:
+      - name: user_id
+        description: Unique identifier for a user
+        data_type: STRING
+      - name: user_name
+        description: Name of the user
+        data_type: STRING
+      - name: email
+        description: Email address of the user
+        data_type: STRING
+      - name: company
+        description: Company the user belongs to
+        data_type: STRING
+      - name: plan_type
+        description: Type of Zoom plan the user has
+        data_type: STRING
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
+
+  - name: bz_meetings
+    description: Bronze layer table for meeting data
+    columns:
+      - name: meeting_id
+        description: Unique identifier for a meeting
+        data_type: STRING
+      - name: host_id
+        description: ID of the user hosting the meeting
+        data_type: STRING
+      - name: meeting_topic
+        description: Topic of the meeting
+        data_type: STRING
+      - name: start_time
+        description: Start time of the meeting
+        data_type: TIMESTAMP_NTZ
+      - name: end_time
+        description: End time of the meeting
+        data_type: TIMESTAMP_NTZ
+      - name: duration_minutes
+        description: Duration of the meeting in minutes
+        data_type: NUMBER
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
+
+  - name: bz_participants
+    description: Bronze layer table for participant data
+    columns:
+      - name: participant_id
+        description: Unique identifier for a participant
+        data_type: STRING
+      - name: meeting_id
+        description: ID of the meeting the participant attended
+        data_type: STRING
+      - name: user_id
+        description: ID of the user who participated
+        data_type: STRING
+      - name: join_time
+        description: Time when the participant joined the meeting
+        data_type: TIMESTAMP_NTZ
+      - name: leave_time
+        description: Time when the participant left the meeting
+        data_type: TIMESTAMP_NTZ
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
+
+  - name: bz_feature_usage
+    description: Bronze layer table for feature usage data
+    columns:
+      - name: usage_id
+        description: Unique identifier for a feature usage record
+        data_type: STRING
+      - name: meeting_id
+        description: ID of the meeting where the feature was used
+        data_type: STRING
+      - name: feature_name
+        description: Name of the feature used
+        data_type: STRING
+      - name: usage_count
+        description: Count of how many times the feature was used
+        data_type: NUMBER
+      - name: usage_date
+        description: Date when the feature was used
+        data_type: DATE
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
+
+  - name: bz_webinars
+    description: Bronze layer table for webinar data
+    columns:
+      - name: webinar_id
+        description: Unique identifier for a webinar
+        data_type: STRING
+      - name: host_id
+        description: ID of the user hosting the webinar
+        data_type: STRING
+      - name: webinar_topic
+        description: Topic of the webinar
+        data_type: STRING
+      - name: start_time
+        description: Start time of the webinar
+        data_type: TIMESTAMP_NTZ
+      - name: end_time
+        description: End time of the webinar
+        data_type: TIMESTAMP_NTZ
+      - name: registrants
+        description: Number of registrants for the webinar
+        data_type: NUMBER
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
+
+  - name: bz_support_tickets
+    description: Bronze layer table for support ticket data
+    columns:
+      - name: ticket_id
+        description: Unique identifier for a support ticket
+        data_type: STRING
+      - name: user_id
+        description: ID of the user who created the ticket
+        data_type: STRING
+      - name: ticket_type
+        description: Type of support ticket
+        data_type: STRING
+      - name: resolution_status
+        description: Current status of ticket resolution
+        data_type: STRING
+      - name: open_date
+        description: Date when the ticket was opened
+        data_type: DATE
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
+
+  - name: bz_licenses
+    description: Bronze layer table for license data
+    columns:
+      - name: license_id
+        description: Unique identifier for a license
+        data_type: STRING
+      - name: license_type
+        description: Type of license
+        data_type: STRING
+      - name: assigned_to_user_id
+        description: ID of the user the license is assigned to
+        data_type: STRING
+      - name: start_date
+        description: Start date of the license
+        data_type: DATE
+      - name: end_date
+        description: End date of the license
+        data_type: DATE
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
+
+  - name: bz_billing_events
+    description: Bronze layer table for billing event data
+    columns:
+      - name: event_id
+        description: Unique identifier for a billing event
+        data_type: STRING
+      - name: user_id
+        description: ID of the user associated with the billing event
+        data_type: STRING
+      - name: event_type
+        description: Type of billing event
+        data_type: STRING
+      - name: amount
+        description: Amount associated with the billing event
+        data_type: NUMBER(10,2)
+      - name: event_date
+        description: Date of the billing event
+        data_type: DATE
+      - name: load_timestamp
+        description: Timestamp when the record was loaded
+        data_type: TIMESTAMP_NTZ
+      - name: update_timestamp
+        description: Timestamp when the record was last updated
+        data_type: TIMESTAMP_NTZ
+      - name: source_system
+        description: Source system of the data
+        data_type: STRING
