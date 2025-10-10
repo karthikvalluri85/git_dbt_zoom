@@ -5,13 +5,7 @@
 
 {{ config(
     materialized='table',
-    unique_key='user_id',
-    pre_hook=[
-      "{{ log_audit_start('bz_users') }}"
-    ],
-    post_hook=[
-      "{{ log_audit_end('bz_users', 'SUCCESS') }}"
-    ]
+    unique_key='user_id'
 ) }}
 
 -- Extract and transform data from raw users table
