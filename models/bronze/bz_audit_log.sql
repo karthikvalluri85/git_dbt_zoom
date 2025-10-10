@@ -8,12 +8,12 @@
     unique_key='record_id'
 ) }}
 
--- Create audit log table if it doesn't exist
+-- Create audit log table with proper column types
 SELECT
-    NULL as record_id,
-    'INITIAL_SETUP' as source_table,
-    CURRENT_TIMESTAMP() as load_timestamp,
-    'DBT' as processed_by,
-    0 as processing_time,
-    'SUCCESS' as status
+    CAST(NULL as NUMBER) as record_id,
+    CAST('INITIAL_SETUP' as VARCHAR(255)) as source_table,
+    CAST(CURRENT_TIMESTAMP() as TIMESTAMP_NTZ) as load_timestamp,
+    CAST('DBT' as VARCHAR(100)) as processed_by,
+    CAST(0 as NUMBER) as processing_time,
+    CAST('SUCCESS' as VARCHAR(50)) as status
 WHERE 1=0  -- Empty initial table
