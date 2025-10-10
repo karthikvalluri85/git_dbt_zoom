@@ -18,4 +18,3 @@ models:
   MyProject01:
     bronze:
       +materialized: table
-      +schema: ZOOM_BRONZE_SCHEMA
