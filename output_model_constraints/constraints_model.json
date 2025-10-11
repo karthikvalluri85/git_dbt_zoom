@@ -1,0 +1,168 @@
+{
+  "data_expectations_constraints_business_rules": {
+    "metadata": {
+      "model_name": "Zoom Platform Analytics System - Data Expectations, Constraints & Business Rules",
+      "version": "1.0",
+      "created_date": "2024-12-19",
+      "author": "Data Governance Specialist",
+      "description": "Comprehensive data expectations, constraints, and business rules for Zoom Platform Analytics System"
+    },
+    "data_expectations": {
+      "users_entity": {
+        "completeness": {
+          "user_id": "100% - No null values allowed",
+          "email": "100% - Must be valid email format and unique",
+          "plan_type": "100% - Must be from: Free, Basic, Pro, Business, Enterprise"
+        },
+        "accuracy": {
+          "email_format": "Must conform to RFC 5322 standard",
+          "status_values": "Must be: Active, Inactive, Suspended, Deleted"
+        }
+      },
+      "meetings_entity": {
+        "completeness": {
+          "meeting_id": "100% - No null values allowed",
+          "host_id": "100% - Must reference valid user",
+          "duration_minutes": "100% - Must be non-negative"
+        },
+        "validity": {
+          "temporal_logic": "End_Time must be after Start_Time",
+          "duration_range": "Duration between 0 and 1440 minutes"
+        }
+      },
+      "attendees_entity": {
+        "completeness": {
+          "attendee_id": "100% - No null values allowed",
+          "meeting_id": "100% - Must reference valid meeting"
+        },
+        "accuracy": {
+          "attendance_duration": "Cannot exceed meeting duration",
+          "host_inclusion": "Meeting host must be included as attendee"
+        }
+      },
+      "features_usage_entity": {
+        "completeness": {
+          "usage_id": "100% - No null values allowed",
+          "feature_name": "100% - Must be from feature catalog",
+          "usage_count": "100% - Must be positive integer"
+        }
+      },
+      "support_tickets_entity": {
+        "completeness": {
+          "ticket_id": "100% - No null values allowed",
+          "ticket_type": "100% - Must be from predefined list",
+          "resolution_status": "100% - Must be: Open, In Progress, Resolved, Closed"
+        }
+      },
+      "billing_events_entity": {
+        "completeness": {
+          "event_id": "100% - No null values allowed",
+          "amount": "100% - Must be positive for revenue events",
+          "currency": "100% - Must be valid ISO 4217 code"
+        }
+      },
+      "licenses_entity": {
+        "completeness": {
+          "license_id": "100% - No null values allowed",
+          "license_type": "100% - Must be: Basic, Pro, Business, Enterprise"
+        },
+        "validity": {
+          "date_logic": "End_Date must be after Start_Date"
+        }
+      }
+    },
+    "constraints": {
+      "primary_keys": {
+        "users_pk": "Users(User_ID)",
+        "meetings_pk": "Meetings(Meeting_ID)",
+        "attendees_pk": "Attendees(Attendee_ID)",
+        "features_usage_pk": "Features_Usage(Usage_ID)",
+        "support_tickets_pk": "Support_Tickets(Ticket_ID)",
+        "billing_events_pk": "Billing_Events(Event_ID)",
+        "licenses_pk": "Licenses(License_ID)"
+      },
+      "foreign_keys": {
+        "meetings_host_fk": "Meetings(Host_ID) -> Users(User_ID)",
+        "attendees_meeting_fk": "Attendees(Meeting_ID) -> Meetings(Meeting_ID)",
+        "attendees_user_fk": "Attendees(User_ID) -> Users(User_ID)",
+        "features_usage_meeting_fk": "Features_Usage(Meeting_ID) -> Meetings(Meeting_ID)",
+        "support_tickets_user_fk": "Support_Tickets(User_ID) -> Users(User_ID)",
+        "billing_events_user_fk": "Billing_Events(User_ID) -> Users(User_ID)",
+        "licenses_user_fk": "Licenses(Assigned_To_User_ID) -> Users(User_ID)"
+      },
+      "unique_constraints": {
+        "users_email_unique": "Users(Email) - Unique across all users",
+        "attendees_meeting_user_unique": "Attendees(Meeting_ID, User_ID) - Prevents duplicates"
+      },
+      "check_constraints": {
+        "meetings_duration_check": "Duration_Minutes >= 0",
+        "meetings_time_logic_check": "End_Time > Start_Time",
+        "features_usage_count_check": "Usage_Count > 0",
+        "billing_amount_check": "Amount validation based on Event_Type",
+        "licenses_date_check": "End_Date > Start_Date",
+        "users_plan_type_check": "Plan_Type IN ('Free', 'Basic', 'Pro', 'Business', 'Enterprise')"
+      }
+    },
+    "business_rules": {
+      "user_management": {
+        "USR_001": "Email uniqueness across active users",
+        "USR_002": "Plan type must align with assigned license type",
+        "USR_003": "Deleted users retain historical data but cannot perform new actions"
+      },
+      "meeting_management": {
+        "MTG_001": "Host must be automatically included as attendee",
+        "MTG_002": "Duration must match calculated time difference",
+        "MTG_003": "Maximum meeting duration is 24 hours (1440 minutes)"
+      },
+      "attendance_rules": {
+        "ATT_001": "Attendee duration cannot exceed meeting duration",
+        "ATT_002": "Join/leave times must be within meeting boundaries"
+      },
+      "feature_usage": {
+        "FTR_001": "Feature usage must align with user's plan capabilities",
+        "FTR_002": "Feature names must exist in system catalog"
+      },
+      "support_tickets": {
+        "SUP_001": "Status workflow: Open -> In Progress -> Resolved -> Closed",
+        "SUP_002": "Close date must be after open date"
+      },
+      "billing_events": {
+        "BIL_001": "Revenue events have positive amounts, refunds can be negative",
+        "BIL_002": "Currency must match user's billing region"
+      },
+      "license_management": {
+        "LIC_001": "End date must be after start date",
+        "LIC_002": "License assignment must match user plan type",
+        "LIC_003": "One active license per type per user"
+      },
+      "data_privacy": {
+        "PII_001": "Email and User_Name must be masked for non-authorized users",
+        "PII_002": "Deleted user PII must be anonymized after retention period"
+      },
+      "data_quality": {
+        "DQ_001": "All foreign key relationships must be maintained",
+        "DQ_002": "Transactional data must meet SLA timeframes"
+      }
+    },
+    "compliance_framework": {
+      "policies": {
+        "data_quality_assurance": "Ensures all data meets quality standards",
+        "privacy_protection": "Protects PII throughout data lifecycle",
+        "referential_integrity": "Maintains consistent entity relationships"
+      },
+      "monitoring": [
+        "Null value percentage tracking",
+        "Referential integrity violation detection",
+        "Data freshness monitoring",
+        "Business rule violation alerts",
+        "Anomaly detection for key metrics"
+      ],
+      "enforcement_levels": {
+        "STRICT": "System-enforced constraints that prevent data entry",
+        "BUSINESS": "Business logic rules validated during processing",
+        "COMPLIANCE": "Regulatory requirements with audit trails",
+        "OPERATIONAL": "Performance and SLA-related requirements"
+      }
+    }
+  }
+}
