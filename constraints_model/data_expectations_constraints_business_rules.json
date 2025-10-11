@@ -1,0 +1,217 @@
+{
+  "DataExpectations": [
+    {
+      "FieldName": "User_ID",
+      "Expectation": "Must be a unique alphanumeric identifier for each user with 100% completeness - no null values allowed."
+    },
+    {
+      "FieldName": "Email",
+      "Expectation": "Must be a valid email format conforming to RFC 5322 standard, unique across all users, and requires PII anonymization for non-authorized access."
+    },
+    {
+      "FieldName": "Plan_Type",
+      "Expectation": "Must be one of the predefined values: Free, Basic, Pro, Business, Enterprise with 100% completeness."
+    },
+    {
+      "FieldName": "Meeting_ID",
+      "Expectation": "Must be a unique alphanumeric identifier for each meeting with 100% completeness - no null values allowed."
+    },
+    {
+      "FieldName": "Duration_Minutes",
+      "Expectation": "Must be a non-negative integer between 0 and 1440 minutes (24 hours maximum) with 100% completeness."
+    },
+    {
+      "FieldName": "Start_Time",
+      "Expectation": "Must be a valid timestamp in ISO format, and End_Time must be after Start_Time if both are provided."
+    },
+    {
+      "FieldName": "End_Time",
+      "Expectation": "Must be a valid timestamp in ISO format and must be after Start_Time when both timestamps are provided."
+    },
+    {
+      "FieldName": "Meeting_Type",
+      "Expectation": "Must be one of the predefined values: Scheduled, Instant, Recurring, Webinar."
+    },
+    {
+      "FieldName": "Attendance_Duration_Minutes",
+      "Expectation": "Must be a non-negative integer that cannot exceed the meeting duration and must align with join/leave time calculations."
+    },
+    {
+      "FieldName": "Feature_Name",
+      "Expectation": "Must be from the predefined feature catalog: Screen_Share, Chat, Recording, Breakout_Rooms, Whiteboard, Polls, Reactions, Virtual_Background."
+    },
+    {
+      "FieldName": "Usage_Count",
+      "Expectation": "Must be a positive integer greater than 0 representing the number of times a feature was used."
+    },
+    {
+      "FieldName": "Ticket_Type",
+      "Expectation": "Must be from predefined categories: Audio_Issues, Video_Issues, Connectivity_Problems, Login_Issues, Billing_Questions, Feature_Request, Bug_Report, Account_Management, Technical_Support."
+    },
+    {
+      "FieldName": "Resolution_Status",
+      "Expectation": "Must follow workflow values: Open, In_Progress, Pending_Customer, Resolved, Closed, Escalated with proper status transitions."
+    },
+    {
+      "FieldName": "Amount",
+      "Expectation": "Must be a positive decimal number for revenue events, can be negative for refunds, with proper currency alignment."
+    },
+    {
+      "FieldName": "Currency",
+      "Expectation": "Must be a valid ISO 4217 currency code (3 characters) matching the user's billing region."
+    },
+    {
+      "FieldName": "License_Type",
+      "Expectation": "Must be from predefined values: Basic, Pro, Business, Enterprise, Developer, Educational and align with user's plan type."
+    }
+  ],
+  "Constraints": [
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "User_ID",
+      "Description": "Ensures each user has a unique identifier across the Users entity."
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Meeting_ID",
+      "Description": "Ensures each meeting has a unique identifier across the Meetings entity."
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Attendee_ID",
+      "Description": "Ensures each attendee record has a unique identifier across the Attendees entity."
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Usage_ID",
+      "Description": "Ensures each feature usage record has a unique identifier across the Features_Usage entity."
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Ticket_ID",
+      "Description": "Ensures each support ticket has a unique identifier across the Support_Tickets entity."
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Event_ID",
+      "Description": "Ensures each billing event has a unique identifier across the Billing_Events entity."
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "License_ID",
+      "Description": "Ensures each license has a unique identifier across the Licenses entity."
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Host_ID",
+      "Description": "Links meetings to users via Host_ID referencing Users.User_ID to ensure meeting hosts are valid users."
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Meeting_ID",
+      "Description": "Links attendees and feature usage to meetings via Meeting_ID referencing Meetings.Meeting_ID."
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "User_ID",
+      "Description": "Links attendees, feature usage, support tickets, billing events, and licenses to users via User_ID referencing Users.User_ID."
+    },
+    {
+      "ConstraintType": "Unique",
+      "FieldName": "Email",
+      "Description": "Ensures email addresses are unique across all active users in the system."
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Duration_Minutes",
+      "Description": "Ensures meeting duration is non-negative (>= 0) and does not exceed 1440 minutes (24 hours)."
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "End_Time",
+      "Description": "Ensures End_Time is after Start_Time when both timestamps are provided for meetings."
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Usage_Count",
+      "Description": "Ensures feature usage count is a positive integer (> 0)."
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Amount",
+      "Description": "Ensures billing amounts are positive for revenue events and properly validated based on event type."
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "End_Date",
+      "Description": "Ensures license End_Date is after Start_Date for all license records."
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Plan_Type",
+      "Description": "Ensures Plan_Type values are restricted to: Free, Basic, Pro, Business, Enterprise."
+    }
+  ],
+  "BusinessRules": [
+    {
+      "RuleName": "Meeting Host Attendance Rule",
+      "Description": "The meeting host must be automatically included as an attendee in every meeting they host."
+    },
+    {
+      "RuleName": "Attendance Duration Validation",
+      "Description": "An attendee's duration in a meeting cannot exceed the total meeting duration."
+    },
+    {
+      "RuleName": "Email Uniqueness for Active Users",
+      "Description": "Email addresses must be unique across all active users, but can be reused after user deletion and anonymization."
+    },
+    {
+      "RuleName": "Plan Type and License Alignment",
+      "Description": "A user's plan type must align with their assigned license type to ensure proper feature access."
+    },
+    {
+      "RuleName": "Support Ticket Status Workflow",
+      "Description": "Support tickets must follow the proper status workflow: Open -> In_Progress -> Pending_Customer -> Resolved -> Closed, with Escalated as an alternative path."
+    },
+    {
+      "RuleName": "Feature Usage Plan Validation",
+      "Description": "Feature usage must align with the user's plan capabilities - users cannot use features not included in their plan type."
+    },
+    {
+      "RuleName": "Meeting Duration Limit",
+      "Description": "Meetings cannot exceed 24 hours (1440 minutes) in duration to maintain system performance and data quality."
+    },
+    {
+      "RuleName": "Billing Event Currency Alignment",
+      "Description": "The currency for billing events must match the user's billing region and account settings."
+    },
+    {
+      "RuleName": "License Assignment Uniqueness",
+      "Description": "A user can have only one active license per license type at any given time."
+    },
+    {
+      "RuleName": "PII Data Anonymization",
+      "Description": "Personal Identifiable Information (Email, User_Name, Attendee_Name) must be anonymized for non-authorized users and after user deletion retention periods."
+    },
+    {
+      "RuleName": "Temporal Data Consistency",
+      "Description": "All timestamp-related fields must maintain logical consistency - join times within meeting boundaries, close dates after open dates, etc."
+    },
+    {
+      "RuleName": "Referential Integrity Maintenance",
+      "Description": "All foreign key relationships must be maintained throughout the data lifecycle, with proper cascade or restrict policies for deletions."
+    },
+    {
+      "RuleName": "Revenue Event Validation",
+      "Description": "Revenue-generating billing events must have positive amounts, while refunds can have negative amounts, with proper audit trails."
+    },
+    {
+      "RuleName": "Data Quality SLA Compliance",
+      "Description": "Transactional data must meet defined Service Level Agreement timeframes for data availability and processing."
+    },
+    {
+      "RuleName": "Feature Catalog Compliance",
+      "Description": "All feature names used in Features_Usage must exist in the system's feature catalog and be properly maintained."
+    }
+  ]
+}
