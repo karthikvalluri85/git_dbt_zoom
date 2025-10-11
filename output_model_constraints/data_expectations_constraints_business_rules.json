@@ -1,435 +1,349 @@
 {
-  "metadata": {
-    "model_name": "Zoom Platform Analytics System - Data Expectations, Constraints, and Business Rules",
-    "version": "1.0",
-    "created_date": "2024-12-19",
-    "author": "Data Governance Specialist",
-    "description": "Comprehensive data expectations, constraints, and business rules extracted from the conceptual data model for Zoom Platform Analytics System",
-    "source_model": "Zoom Platform Analytics System - Conceptual Data Model v1.0"
-  },
-  "DataExpectations": {
-    "Users": {
-      "User_ID": {
-        "data_type": "String",
-        "format_expectation": "Unique alphanumeric identifier",
-        "value_expectation": "Non-null, unique across all users",
-        "quality_rules": ["Must be present for every record", "Must be unique"]
-      },
-      "Plan_Type": {
-        "data_type": "String",
-        "format_expectation": "Predefined enumeration values",
-        "value_expectation": "Must be one of: Free, Basic, Pro, Enterprise",
-        "quality_rules": ["Must be from predefined list", "Cannot be null"]
-      },
-      "Company": {
-        "data_type": "String",
-        "format_expectation": "Free text company name",
-        "value_expectation": "Valid company name or null for individual users",
-        "quality_rules": ["Can be null for individual accounts"]
-      },
-      "Email": {
-        "data_type": "String",
-        "format_expectation": "Valid email format (user@domain.com)",
-        "value_expectation": "Unique, valid email address",
-        "quality_rules": ["Must follow email format validation", "Must be unique across all users", "Sensitive data - requires masking"]
-      },
-      "User_Name": {
-        "data_type": "String",
-        "format_expectation": "Display name string",
-        "value_expectation": "Non-empty user display name",
-        "quality_rules": ["Cannot be null or empty", "Sensitive data - requires masking"]
-      }
+  "DataExpectations": [
+    {
+      "FieldName": "Users.User_ID",
+      "Expectation": "Must be a unique string identifier for each user, non-null, serving as primary key"
     },
-    "Meetings": {
-      "Meeting_ID": {
-        "data_type": "String",
-        "format_expectation": "Unique meeting identifier",
-        "value_expectation": "Non-null, unique across all meetings",
-        "quality_rules": ["Must be present for every record", "Must be unique"]
-      },
-      "Host_ID": {
-        "data_type": "String",
-        "format_expectation": "Valid User_ID reference",
-        "value_expectation": "Must reference existing User_ID",
-        "quality_rules": ["Must exist in Users table", "Cannot be null"]
-      },
-      "Duration_Minutes": {
-        "data_type": "Integer",
-        "format_expectation": "Non-negative integer",
-        "value_expectation": "Zero or positive integer representing minutes",
-        "quality_rules": ["Must be >= 0", "Should align with calculated time difference"]
-      },
-      "Start_Time": {
-        "data_type": "Timestamp",
-        "format_expectation": "Valid timestamp format (YYYY-MM-DD HH:MM:SS)",
-        "value_expectation": "Valid timestamp when meeting started",
-        "quality_rules": ["Must be valid timestamp", "Cannot be null"]
-      },
-      "End_Time": {
-        "data_type": "Timestamp",
-        "format_expectation": "Valid timestamp format (YYYY-MM-DD HH:MM:SS)",
-        "value_expectation": "Valid timestamp when meeting ended, must be after Start_Time",
-        "quality_rules": ["Must be valid timestamp", "Must be greater than Start_Time", "Cannot be null"]
-      }
+    {
+      "FieldName": "Users.Plan_Type",
+      "Expectation": "Must be one of predefined values: Free, Basic, Pro, Enterprise. Non-null string value"
     },
-    "Attendees": {
-      "Meeting_ID": {
-        "data_type": "String",
-        "format_expectation": "Valid Meeting_ID reference",
-        "value_expectation": "Must reference existing Meeting_ID",
-        "quality_rules": ["Must exist in Meetings table", "Cannot be null"]
-      },
-      "User_ID": {
-        "data_type": "String",
-        "format_expectation": "Valid User_ID reference",
-        "value_expectation": "Must reference existing User_ID",
-        "quality_rules": ["Must exist in Users table", "Cannot be null"]
-      }
+    {
+      "FieldName": "Users.Email",
+      "Expectation": "Must follow valid email format, be unique across all users, non-null. Sensitive data requiring masking for non-authorized users"
     },
-    "Features_Usage": {
-      "Meeting_ID": {
-        "data_type": "String",
-        "format_expectation": "Valid Meeting_ID reference",
-        "value_expectation": "Must reference existing Meeting_ID",
-        "quality_rules": ["Must exist in Meetings table", "Cannot be null"]
-      },
-      "Feature_Name": {
-        "data_type": "String",
-        "format_expectation": "Predefined feature name",
-        "value_expectation": "Must be from predefined list (Screen Share, Recording, Chat, etc.)",
-        "quality_rules": ["Must be from system feature catalog", "Cannot be null"]
-      },
-      "Usage_Count": {
-        "data_type": "Integer",
-        "format_expectation": "Positive integer",
-        "value_expectation": "Number of times feature was used (> 0)",
-        "quality_rules": ["Must be positive integer", "Represents frequency within single meeting"]
-      }
+    {
+      "FieldName": "Users.User_Name",
+      "Expectation": "Non-null string representing user's display name. Sensitive data requiring masking for non-authorized users"
     },
-    "Support_Tickets": {
-      "Ticket_ID": {
-        "data_type": "String",
-        "format_expectation": "Unique ticket identifier",
-        "value_expectation": "Non-null, unique across all tickets",
-        "quality_rules": ["Must be present for every record", "Must be unique"]
-      },
-      "User_ID": {
-        "data_type": "String",
-        "format_expectation": "Valid User_ID reference",
-        "value_expectation": "Must reference existing User_ID",
-        "quality_rules": ["Must exist in Users table", "Cannot be null"]
-      },
-      "Ticket_Type": {
-        "data_type": "String",
-        "format_expectation": "Predefined ticket category",
-        "value_expectation": "Must be from predefined list (Audio Issues, Connectivity Problems, Billing, etc.)",
-        "quality_rules": ["Must be from predefined enumeration", "Cannot be null"]
-      },
-      "Resolution_Status": {
-        "data_type": "String",
-        "format_expectation": "Predefined status value",
-        "value_expectation": "Must be one of: Open, In Progress, Resolved, Closed",
-        "quality_rules": ["Must follow status lifecycle", "Cannot be null"]
-      },
-      "Open_Date": {
-        "data_type": "Date",
-        "format_expectation": "Valid date format (YYYY-MM-DD)",
-        "value_expectation": "Date when ticket was created",
-        "quality_rules": ["Must be valid date", "Cannot be null"]
-      }
+    {
+      "FieldName": "Users.Company",
+      "Expectation": "Optional string field for company or organization name, can be null"
     },
-    "Billing_Events": {
-      "User_ID": {
-        "data_type": "String",
-        "format_expectation": "Valid User_ID reference",
-        "value_expectation": "Must reference existing User_ID",
-        "quality_rules": ["Must exist in Users table", "Cannot be null"]
-      },
-      "Event_Type": {
-        "data_type": "String",
-        "format_expectation": "Predefined billing event type",
-        "value_expectation": "Must be one of: Subscription, Upgrade, Downgrade, Refund",
-        "quality_rules": ["Must be from predefined enumeration", "Cannot be null"]
-      },
-      "Amount": {
-        "data_type": "Decimal",
-        "format_expectation": "Decimal number with currency precision",
-        "value_expectation": "Positive number for revenue events, may be negative for refunds",
-        "quality_rules": ["Must follow currency precision rules", "Cannot be null"]
-      },
-      "Event_Date": {
-        "data_type": "Date",
-        "format_expectation": "Valid date format (YYYY-MM-DD)",
-        "value_expectation": "Date when billing event occurred",
-        "quality_rules": ["Must be valid date", "Cannot be null"]
-      }
+    {
+      "FieldName": "Meetings.Meeting_ID",
+      "Expectation": "Must be a unique string identifier for each meeting, non-null, serving as primary key"
     },
-    "Licenses": {
-      "License_ID": {
-        "data_type": "String",
-        "format_expectation": "Unique license identifier",
-        "value_expectation": "Non-null, unique across all licenses",
-        "quality_rules": ["Must be present for every record", "Must be unique"]
-      },
-      "License_Type": {
-        "data_type": "String",
-        "format_expectation": "Predefined license type",
-        "value_expectation": "Must be one of: Basic, Pro, Enterprise",
-        "quality_rules": ["Must be predefined license type", "Cannot be null"]
-      },
-      "Assigned_To_User_ID": {
-        "data_type": "String",
-        "format_expectation": "Valid User_ID reference or null",
-        "value_expectation": "Must reference existing User_ID or be null for unassigned licenses",
-        "quality_rules": ["Must exist in Users table if not null", "Null represents available capacity"]
-      },
-      "Start_Date": {
-        "data_type": "Date",
-        "format_expectation": "Valid date format (YYYY-MM-DD)",
-        "value_expectation": "License validity start date",
-        "quality_rules": ["Must be valid date", "Cannot be null"]
-      },
-      "End_Date": {
-        "data_type": "Date",
-        "format_expectation": "Valid date format (YYYY-MM-DD)",
-        "value_expectation": "License expiration date, must be after Start_Date",
-        "quality_rules": ["Must be valid date", "Must be greater than Start_Date", "Cannot be null"]
-      }
+    {
+      "FieldName": "Meetings.Host_ID",
+      "Expectation": "Must be a valid User_ID referencing existing user, non-null foreign key"
+    },
+    {
+      "FieldName": "Meetings.Duration_Minutes",
+      "Expectation": "Must be a non-negative integer representing meeting duration in minutes, non-null"
+    },
+    {
+      "FieldName": "Meetings.Start_Time",
+      "Expectation": "Must be a valid timestamp indicating meeting start time, non-null"
+    },
+    {
+      "FieldName": "Meetings.End_Time",
+      "Expectation": "Must be a valid timestamp indicating meeting end time, non-null, must be after Start_Time"
+    },
+    {
+      "FieldName": "Attendees.Meeting_ID",
+      "Expectation": "Must be a valid Meeting_ID referencing existing meeting, part of composite primary key, non-null"
+    },
+    {
+      "FieldName": "Attendees.User_ID",
+      "Expectation": "Must be a valid User_ID referencing existing user, part of composite primary key, non-null"
+    },
+    {
+      "FieldName": "Features_Usage.Meeting_ID",
+      "Expectation": "Must be a valid Meeting_ID referencing existing meeting, part of composite primary key, non-null"
+    },
+    {
+      "FieldName": "Features_Usage.Feature_Name",
+      "Expectation": "Must be from predefined list of available features (e.g., Screen Share, Recording, Chat), part of composite primary key, non-null"
+    },
+    {
+      "FieldName": "Features_Usage.Usage_Count",
+      "Expectation": "Must be a positive integer representing frequency of feature use within a single meeting, non-null"
+    },
+    {
+      "FieldName": "Support_Tickets.Ticket_ID",
+      "Expectation": "Must be a unique string identifier for each support ticket, non-null, serving as primary key"
+    },
+    {
+      "FieldName": "Support_Tickets.User_ID",
+      "Expectation": "Must be a valid User_ID referencing existing user, non-null foreign key"
+    },
+    {
+      "FieldName": "Support_Tickets.Ticket_Type",
+      "Expectation": "Must be from predefined list of ticket types (e.g., Audio Issues, Connectivity Problems, Billing), non-null"
+    },
+    {
+      "FieldName": "Support_Tickets.Resolution_Status",
+      "Expectation": "Must be from predefined status values: Open, In Progress, Resolved, Closed, non-null"
+    },
+    {
+      "FieldName": "Support_Tickets.Open_Date",
+      "Expectation": "Must be a valid date when the ticket was created, non-null"
+    },
+    {
+      "FieldName": "Billing_Events.User_ID",
+      "Expectation": "Must be a valid User_ID referencing existing user, part of composite primary key, non-null"
+    },
+    {
+      "FieldName": "Billing_Events.Event_Type",
+      "Expectation": "Must be from predefined event types: Subscription, Upgrade, Downgrade, Refund, part of composite primary key, non-null"
+    },
+    {
+      "FieldName": "Billing_Events.Amount",
+      "Expectation": "Must be a positive decimal number for revenue events, may be negative for refunds, non-null, follow currency precision rules"
+    },
+    {
+      "FieldName": "Billing_Events.Event_Date",
+      "Expectation": "Must be a valid date when the billing event occurred, non-null"
+    },
+    {
+      "FieldName": "Licenses.License_ID",
+      "Expectation": "Must be a unique string identifier for each license, non-null, serving as primary key"
+    },
+    {
+      "FieldName": "Licenses.License_Type",
+      "Expectation": "Must be from predefined license types: Basic, Pro, Enterprise, non-null"
+    },
+    {
+      "FieldName": "Licenses.Assigned_To_User_ID",
+      "Expectation": "Must be a valid User_ID when assigned, can be null for unassigned licenses representing available capacity"
+    },
+    {
+      "FieldName": "Licenses.Start_Date",
+      "Expectation": "Must be a valid date indicating license validity start, non-null"
+    },
+    {
+      "FieldName": "Licenses.End_Date",
+      "Expectation": "Must be a valid date indicating license expiration, non-null, must be after Start_Date"
     }
-  },
-  "Constraints": {
-    "primary_keys": {
-      "Users": ["User_ID"],
-      "Meetings": ["Meeting_ID"],
-      "Attendees": ["Meeting_ID", "User_ID"],
-      "Features_Usage": ["Meeting_ID", "Feature_Name"],
-      "Support_Tickets": ["Ticket_ID"],
-      "Billing_Events": ["User_ID", "Event_Type"],
-      "Licenses": ["License_ID"]
+  ],
+  "Constraints": [
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Users.User_ID",
+      "Description": "Unique identifier constraint ensuring each user has a distinct ID"
     },
-    "foreign_keys": {
-      "Meetings": {
-        "Host_ID": {
-          "references_table": "Users",
-          "references_column": "User_ID",
-          "constraint_type": "RESTRICT"
-        }
-      },
-      "Attendees": {
-        "Meeting_ID": {
-          "references_table": "Meetings",
-          "references_column": "Meeting_ID",
-          "constraint_type": "CASCADE"
-        },
-        "User_ID": {
-          "references_table": "Users",
-          "references_column": "User_ID",
-          "constraint_type": "RESTRICT"
-        }
-      },
-      "Features_Usage": {
-        "Meeting_ID": {
-          "references_table": "Meetings",
-          "references_column": "Meeting_ID",
-          "constraint_type": "CASCADE"
-        }
-      },
-      "Support_Tickets": {
-        "User_ID": {
-          "references_table": "Users",
-          "references_column": "User_ID",
-          "constraint_type": "RESTRICT"
-        }
-      },
-      "Billing_Events": {
-        "User_ID": {
-          "references_table": "Users",
-          "references_column": "User_ID",
-          "constraint_type": "RESTRICT"
-        }
-      },
-      "Licenses": {
-        "Assigned_To_User_ID": {
-          "references_table": "Users",
-          "references_column": "User_ID",
-          "constraint_type": "SET_NULL"
-        }
-      }
+    {
+      "ConstraintType": "Unique",
+      "FieldName": "Users.Email",
+      "Description": "Email addresses must be unique across all users to prevent duplicate accounts"
     },
-    "unique_constraints": {
-      "Users": ["Email"],
-      "Meetings": [],
-      "Attendees": [],
-      "Features_Usage": [],
-      "Support_Tickets": [],
-      "Billing_Events": [],
-      "Licenses": []
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Users.Plan_Type",
+      "Description": "Must be from predefined list: Free, Basic, Pro, Enterprise"
     },
-    "nullability_rules": {
-      "Users": {
-        "not_null_columns": ["User_ID", "Plan_Type", "Email", "User_Name"],
-        "nullable_columns": ["Company"]
-      },
-      "Meetings": {
-        "not_null_columns": ["Meeting_ID", "Host_ID", "Duration_Minutes", "Start_Time", "End_Time"],
-        "nullable_columns": []
-      },
-      "Attendees": {
-        "not_null_columns": ["Meeting_ID", "User_ID"],
-        "nullable_columns": []
-      },
-      "Features_Usage": {
-        "not_null_columns": ["Meeting_ID", "Feature_Name", "Usage_Count"],
-        "nullable_columns": []
-      },
-      "Support_Tickets": {
-        "not_null_columns": ["Ticket_ID", "User_ID", "Ticket_Type", "Resolution_Status", "Open_Date"],
-        "nullable_columns": []
-      },
-      "Billing_Events": {
-        "not_null_columns": ["User_ID", "Event_Type", "Amount", "Event_Date"],
-        "nullable_columns": []
-      },
-      "Licenses": {
-        "not_null_columns": ["License_ID", "License_Type", "Start_Date", "End_Date"],
-        "nullable_columns": ["Assigned_To_User_ID"]
-      }
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Meetings.Meeting_ID",
+      "Description": "Unique identifier constraint ensuring each meeting has a distinct ID"
     },
-    "check_constraints": {
-      "Meetings": {
-        "duration_non_negative": "Duration_Minutes >= 0",
-        "end_after_start": "End_Time > Start_Time"
-      },
-      "Features_Usage": {
-        "usage_count_positive": "Usage_Count > 0"
-      },
-      "Billing_Events": {
-        "amount_precision": "Amount DECIMAL(10,2)"
-      },
-      "Licenses": {
-        "end_after_start": "End_Date > Start_Date"
-      }
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Meetings.Host_ID",
+      "Description": "References Users.User_ID to ensure meeting host exists in Users table"
     },
-    "enumeration_constraints": {
-      "Users": {
-        "Plan_Type": ["Free", "Basic", "Pro", "Enterprise"]
-      },
-      "Features_Usage": {
-        "Feature_Name": ["Screen Share", "Recording", "Chat", "Breakout Rooms", "Whiteboard", "Polling", "Annotation"]
-      },
-      "Support_Tickets": {
-        "Ticket_Type": ["Audio Issues", "Connectivity Problems", "Billing", "Feature Request", "Technical Support", "Account Management"],
-        "Resolution_Status": ["Open", "In Progress", "Resolved", "Closed"]
-      },
-      "Billing_Events": {
-        "Event_Type": ["Subscription", "Upgrade", "Downgrade", "Refund"]
-      },
-      "Licenses": {
-        "License_Type": ["Basic", "Pro", "Enterprise"]
-      }
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Meetings.Duration_Minutes",
+      "Description": "Must be non-negative integer (>= 0)"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Meetings.End_Time",
+      "Description": "Must be greater than Start_Time to ensure valid meeting duration"
+    },
+    {
+      "ConstraintType": "Composite Primary Key",
+      "FieldName": "Attendees.Meeting_ID, Attendees.User_ID",
+      "Description": "Ensures unique user-meeting combinations, preventing duplicate attendance records"
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Attendees.Meeting_ID",
+      "Description": "References Meetings.Meeting_ID to ensure meeting exists"
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Attendees.User_ID",
+      "Description": "References Users.User_ID to ensure attendee exists in Users table"
+    },
+    {
+      "ConstraintType": "Composite Primary Key",
+      "FieldName": "Features_Usage.Meeting_ID, Features_Usage.Feature_Name",
+      "Description": "Ensures unique feature usage records per meeting"
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Features_Usage.Meeting_ID",
+      "Description": "References Meetings.Meeting_ID to ensure meeting exists"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Features_Usage.Usage_Count",
+      "Description": "Must be positive integer (> 0)"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Features_Usage.Feature_Name",
+      "Description": "Must be from predefined list of available features in system feature catalog"
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Support_Tickets.Ticket_ID",
+      "Description": "Unique identifier constraint ensuring each support ticket has a distinct ID"
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Support_Tickets.User_ID",
+      "Description": "References Users.User_ID to ensure ticket creator exists in Users table"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Support_Tickets.Ticket_Type",
+      "Description": "Must be from predefined list of ticket types (Audio Issues, Connectivity Problems, Billing, etc.)"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Support_Tickets.Resolution_Status",
+      "Description": "Must be from predefined status values: Open, In Progress, Resolved, Closed"
+    },
+    {
+      "ConstraintType": "Composite Primary Key",
+      "FieldName": "Billing_Events.User_ID, Billing_Events.Event_Type",
+      "Description": "Ensures unique billing event records per user and event type combination"
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Billing_Events.User_ID",
+      "Description": "References Users.User_ID to ensure billing event is associated with existing user"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Billing_Events.Amount",
+      "Description": "Must be positive number for revenue events, may be negative for refunds"
+    },
+    {
+      "ConstraintType": "Primary Key",
+      "FieldName": "Licenses.License_ID",
+      "Description": "Unique identifier constraint ensuring each license has a distinct ID"
+    },
+    {
+      "ConstraintType": "Foreign Key",
+      "FieldName": "Licenses.Assigned_To_User_ID",
+      "Description": "References Users.User_ID when assigned, nullable for unassigned licenses"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Licenses.End_Date",
+      "Description": "Must be greater than Start_Date to ensure valid license period"
+    },
+    {
+      "ConstraintType": "Check",
+      "FieldName": "Licenses.License_Type",
+      "Description": "Must be from predefined license types: Basic, Pro, Enterprise"
     }
-  },
-  "BusinessRules": {
-    "data_integrity_rules": {
-      "user_management": [
-        "Email must be unique across all users",
-        "Plan_Type determines access control and feature availability",
-        "User_Name and Email are sensitive data requiring masking for non-authorized users"
-      ],
-      "meeting_management": [
-        "End_Time must be greater than Start_Time",
-        "Duration_Minutes should align with calculated time difference between Start_Time and End_Time",
-        "Every meeting must have exactly one host",
-        "Meeting host is automatically included as an attendee"
-      ],
-      "attendance_tracking": [
-        "Composite primary key (Meeting_ID, User_ID) ensures unique user-meeting combinations",
-        "Host is automatically considered an attendee",
-        "Tracks user participation across all meetings"
-      ],
-      "feature_usage_tracking": [
-        "Feature_Name must be from predefined list of available features",
-        "Usage_Count represents frequency of use within a single meeting",
-        "Each feature used in a meeting creates a separate record"
-      ],
-      "support_ticket_management": [
-        "Ticket lifecycle: Open -> In Progress -> Resolved -> Closed",
-        "Resolution time calculated from Open_Date to status change timestamp",
-        "Tracks all support interactions per user"
-      ],
-      "billing_and_revenue": [
-        "Amount must be positive for revenue events",
-        "Refund events may have negative amounts",
-        "Event_Type determines revenue recognition rules",
-        "Tracks complete billing history per user"
-      ],
-      "license_management": [
-        "End_Date must be greater than Start_Date",
-        "License_Type must align with User's Plan_Type when assigned",
-        "Unassigned licenses (Assigned_To_User_ID = null) represent available capacity",
-        "Supports license history and concurrent license assignments"
-      ]
+  ],
+  "BusinessRules": [
+    {
+      "RuleName": "User Email Uniqueness",
+      "Description": "Email must be unique across all users to prevent duplicate accounts and ensure proper user identification"
     },
-    "referential_integrity_rules": [
-      "All foreign key relationships must be maintained",
-      "Cascade delete rules should be defined for data cleanup",
-      "Orphaned records should be prevented through proper constraints",
-      "Meeting deletion should cascade to Attendees and Features_Usage",
-      "User deletion should be restricted if referenced by active records"
-    ],
-    "business_logic_rules": {
-      "platform_usage_analytics": [
-        "Daily/Weekly/Monthly Active Users calculated from Attendees and Meetings data",
-        "Feature adoption rates calculated from Features_Usage frequency",
-        "Meeting duration trends analyzed from Duration_Minutes",
-        "New user sign-up trends tracked through User creation timestamps"
-      ],
-      "service_reliability_metrics": [
-        "Ticket volume calculated by Ticket_Type and time periods",
-        "Average resolution time calculated from Open_Date to status changes",
-        "Support efficiency measured as tickets per 1,000 active users",
-        "First-contact resolution tracked through ticket status transitions"
-      ],
-      "revenue_and_license_analytics": [
-        "Monthly Recurring Revenue (MRR) calculated from Billing_Events",
-        "License utilization rate calculated from assigned vs. total licenses",
-        "Customer lifetime value derived from billing history",
-        "Churn rate analysis based on license expiration and renewal patterns"
-      ]
+    {
+      "RuleName": "Plan Type Access Control",
+      "Description": "Plan_Type determines access control and feature availability for users across the platform"
     },
-    "data_quality_rules": [
-      "Duration_Minutes must be non-negative integer",
-      "Start_Time and End_Time must be valid timestamps with End_Time > Start_Time",
-      "Amount in Billing_Events must follow currency precision rules",
-      "Start_Date must be before End_Date in Licenses",
-      "Email addresses must follow valid email format validation",
-      "Ticket_Type and Resolution_Status must be from predefined enumerations",
-      "Feature_Name must exist in system feature catalog"
-    ],
-    "security_and_privacy_rules": [
-      "Mask Email and User_Name for non-authorized users",
-      "Implement row-level security based on Plan_Type",
-      "Audit trail required for all data access",
-      "Encryption required for sensitive data at rest and in transit",
-      "Role-based access control for different user types",
-      "Account-specific filtering for Account Managers",
-      "Team-specific filtering for Support Team Leads"
-    ],
-    "performance_and_scalability_rules": [
-      "Create indices on User_ID, Meeting_ID, and date fields for query optimization",
-      "Implement data partitioning on date fields for large tables",
-      "Consider materialized views for frequently accessed aggregations",
-      "Implement caching strategy for dashboard queries",
-      "Design for horizontal scaling of meeting and usage data",
-      "Implement archiving strategy for historical data retention"
-    ],
-    "compliance_and_governance_rules": [
-      "Data retention policies must be defined for each entity",
-      "Data lineage must be maintained from source to consumption",
-      "Change data capture required for audit purposes",
-      "Data validation against schema constraints in ETL pipelines",
-      "Medallion architecture implementation with Bronze, Silver, and Gold layers",
-      "Real-time and batch processing capabilities must be supported"
-    ]
-  }
+    {
+      "RuleName": "Meeting Duration Consistency",
+      "Description": "Duration_Minutes should align with calculated time difference between Start_Time and End_Time for data integrity"
+    },
+    {
+      "RuleName": "Meeting Time Validation",
+      "Description": "End_Time must be greater than Start_Time to ensure logical meeting duration"
+    },
+    {
+      "RuleName": "Host Attendance Inclusion",
+      "Description": "Meeting host is automatically considered an attendee and must be included in Attendees table"
+    },
+    {
+      "RuleName": "Unique User-Meeting Attendance",
+      "Description": "Composite primary key ensures unique user-meeting combinations, preventing duplicate attendance records"
+    },
+    {
+      "RuleName": "Feature Catalog Validation",
+      "Description": "Feature_Name must exist in system feature catalog to ensure only valid features are tracked"
+    },
+    {
+      "RuleName": "Feature Usage Frequency",
+      "Description": "Usage_Count represents frequency of use within a single meeting, must be positive integer"
+    },
+    {
+      "RuleName": "Support Ticket Lifecycle",
+      "Description": "Ticket lifecycle follows defined progression: Open -> In Progress -> Resolved -> Closed"
+    },
+    {
+      "RuleName": "Resolution Time Calculation",
+      "Description": "Resolution time calculated from Open_Date to status change timestamp for performance metrics"
+    },
+    {
+      "RuleName": "Revenue Event Amount Rules",
+      "Description": "Amount must be positive for revenue events (Subscription, Upgrade), may be negative for refunds"
+    },
+    {
+      "RuleName": "Revenue Recognition by Event Type",
+      "Description": "Event_Type determines revenue recognition rules and financial reporting classification"
+    },
+    {
+      "RuleName": "License Period Validation",
+      "Description": "End_Date must be greater than Start_Date to ensure valid license validity period"
+    },
+    {
+      "RuleName": "License-Plan Type Alignment",
+      "Description": "License_Type must align with User's Plan_Type when assigned to ensure consistent access rights"
+    },
+    {
+      "RuleName": "Unassigned License Capacity",
+      "Description": "Unassigned licenses (Assigned_To_User_ID = null) represent available capacity for license management"
+    },
+    {
+      "RuleName": "Referential Integrity Maintenance",
+      "Description": "All foreign key relationships must be maintained with proper cascade delete rules for data cleanup"
+    },
+    {
+      "RuleName": "Orphaned Record Prevention",
+      "Description": "Orphaned records should be prevented through proper constraints and referential integrity enforcement"
+    },
+    {
+      "RuleName": "Data Privacy and Masking",
+      "Description": "Email and User_Name must be masked for non-authorized users to comply with data privacy requirements"
+    },
+    {
+      "RuleName": "Role-Based Data Access",
+      "Description": "Data access must be filtered based on user roles and permissions as defined in access control requirements"
+    },
+    {
+      "RuleName": "Currency Precision Compliance",
+      "Description": "Billing event amounts must follow currency precision rules for accurate financial calculations"
+    },
+    {
+      "RuleName": "Meeting Host Uniqueness",
+      "Description": "Every meeting must have exactly one host, ensuring clear ownership and responsibility"
+    },
+    {
+      "RuleName": "License History Tracking",
+      "Description": "System supports license history and concurrent license assignments for comprehensive license management"
+    },
+    {
+      "RuleName": "Feature Usage Per Meeting",
+      "Description": "Each feature used in a meeting creates a separate record for detailed usage analytics"
+    },
+    {
+      "RuleName": "Support Interaction Tracking",
+      "Description": "System tracks all support interactions per user for comprehensive customer service analytics"
+    },
+    {
+      "RuleName": "Complete Billing History",
+      "Description": "System tracks complete billing history per user for financial analysis and customer lifecycle management"
+    }
+  ]
 }
