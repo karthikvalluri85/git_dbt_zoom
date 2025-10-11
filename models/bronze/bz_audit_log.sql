@@ -1,7 +1,6 @@
 {{{
   config(
-    materialized='table',
-    unique_key='record_id'
+    materialized='table'
   )
 }}}
 
