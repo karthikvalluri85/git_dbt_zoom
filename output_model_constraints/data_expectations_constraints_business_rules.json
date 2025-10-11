@@ -1,0 +1,435 @@
+{
+  "metadata": {
+    "model_name": "Zoom Platform Analytics System - Data Expectations, Constraints, and Business Rules",
+    "version": "1.0",
+    "created_date": "2024-12-19",
+    "author": "Data Governance Specialist",
+    "description": "Comprehensive data expectations, constraints, and business rules extracted from the conceptual data model for Zoom Platform Analytics System",
+    "source_model": "Zoom Platform Analytics System - Conceptual Data Model v1.0"
+  },
+  "DataExpectations": {
+    "Users": {
+      "User_ID": {
+        "data_type": "String",
+        "format_expectation": "Unique alphanumeric identifier",
+        "value_expectation": "Non-null, unique across all users",
+        "quality_rules": ["Must be present for every record", "Must be unique"]
+      },
+      "Plan_Type": {
+        "data_type": "String",
+        "format_expectation": "Predefined enumeration values",
+        "value_expectation": "Must be one of: Free, Basic, Pro, Enterprise",
+        "quality_rules": ["Must be from predefined list", "Cannot be null"]
+      },
+      "Company": {
+        "data_type": "String",
+        "format_expectation": "Free text company name",
+        "value_expectation": "Valid company name or null for individual users",
+        "quality_rules": ["Can be null for individual accounts"]
+      },
+      "Email": {
+        "data_type": "String",
+        "format_expectation": "Valid email format (user@domain.com)",
+        "value_expectation": "Unique, valid email address",
+        "quality_rules": ["Must follow email format validation", "Must be unique across all users", "Sensitive data - requires masking"]
+      },
+      "User_Name": {
+        "data_type": "String",
+        "format_expectation": "Display name string",
+        "value_expectation": "Non-empty user display name",
+        "quality_rules": ["Cannot be null or empty", "Sensitive data - requires masking"]
+      }
+    },
+    "Meetings": {
+      "Meeting_ID": {
+        "data_type": "String",
+        "format_expectation": "Unique meeting identifier",
+        "value_expectation": "Non-null, unique across all meetings",
+        "quality_rules": ["Must be present for every record", "Must be unique"]
+      },
+      "Host_ID": {
+        "data_type": "String",
+        "format_expectation": "Valid User_ID reference",
+        "value_expectation": "Must reference existing User_ID",
+        "quality_rules": ["Must exist in Users table", "Cannot be null"]
+      },
+      "Duration_Minutes": {
+        "data_type": "Integer",
+        "format_expectation": "Non-negative integer",
+        "value_expectation": "Zero or positive integer representing minutes",
+        "quality_rules": ["Must be >= 0", "Should align with calculated time difference"]
+      },
+      "Start_Time": {
+        "data_type": "Timestamp",
+        "format_expectation": "Valid timestamp format (YYYY-MM-DD HH:MM:SS)",
+        "value_expectation": "Valid timestamp when meeting started",
+        "quality_rules": ["Must be valid timestamp", "Cannot be null"]
+      },
+      "End_Time": {
+        "data_type": "Timestamp",
+        "format_expectation": "Valid timestamp format (YYYY-MM-DD HH:MM:SS)",
+        "value_expectation": "Valid timestamp when meeting ended, must be after Start_Time",
+        "quality_rules": ["Must be valid timestamp", "Must be greater than Start_Time", "Cannot be null"]
+      }
+    },
+    "Attendees": {
+      "Meeting_ID": {
+        "data_type": "String",
+        "format_expectation": "Valid Meeting_ID reference",
+        "value_expectation": "Must reference existing Meeting_ID",
+        "quality_rules": ["Must exist in Meetings table", "Cannot be null"]
+      },
+      "User_ID": {
+        "data_type": "String",
+        "format_expectation": "Valid User_ID reference",
+        "value_expectation": "Must reference existing User_ID",
+        "quality_rules": ["Must exist in Users table", "Cannot be null"]
+      }
+    },
+    "Features_Usage": {
+      "Meeting_ID": {
+        "data_type": "String",
+        "format_expectation": "Valid Meeting_ID reference",
+        "value_expectation": "Must reference existing Meeting_ID",
+        "quality_rules": ["Must exist in Meetings table", "Cannot be null"]
+      },
+      "Feature_Name": {
+        "data_type": "String",
+        "format_expectation": "Predefined feature name",
+        "value_expectation": "Must be from predefined list (Screen Share, Recording, Chat, etc.)",
+        "quality_rules": ["Must be from system feature catalog", "Cannot be null"]
+      },
+      "Usage_Count": {
+        "data_type": "Integer",
+        "format_expectation": "Positive integer",
+        "value_expectation": "Number of times feature was used (> 0)",
+        "quality_rules": ["Must be positive integer", "Represents frequency within single meeting"]
+      }
+    },
+    "Support_Tickets": {
+      "Ticket_ID": {
+        "data_type": "String",
+        "format_expectation": "Unique ticket identifier",
+        "value_expectation": "Non-null, unique across all tickets",
+        "quality_rules": ["Must be present for every record", "Must be unique"]
+      },
+      "User_ID": {
+        "data_type": "String",
+        "format_expectation": "Valid User_ID reference",
+        "value_expectation": "Must reference existing User_ID",
+        "quality_rules": ["Must exist in Users table", "Cannot be null"]
+      },
+      "Ticket_Type": {
+        "data_type": "String",
+        "format_expectation": "Predefined ticket category",
+        "value_expectation": "Must be from predefined list (Audio Issues, Connectivity Problems, Billing, etc.)",
+        "quality_rules": ["Must be from predefined enumeration", "Cannot be null"]
+      },
+      "Resolution_Status": {
+        "data_type": "String",
+        "format_expectation": "Predefined status value",
+        "value_expectation": "Must be one of: Open, In Progress, Resolved, Closed",
+        "quality_rules": ["Must follow status lifecycle", "Cannot be null"]
+      },
+      "Open_Date": {
+        "data_type": "Date",
+        "format_expectation": "Valid date format (YYYY-MM-DD)",
+        "value_expectation": "Date when ticket was created",
+        "quality_rules": ["Must be valid date", "Cannot be null"]
+      }
+    },
+    "Billing_Events": {
+      "User_ID": {
+        "data_type": "String",
+        "format_expectation": "Valid User_ID reference",
+        "value_expectation": "Must reference existing User_ID",
+        "quality_rules": ["Must exist in Users table", "Cannot be null"]
+      },
+      "Event_Type": {
+        "data_type": "String",
+        "format_expectation": "Predefined billing event type",
+        "value_expectation": "Must be one of: Subscription, Upgrade, Downgrade, Refund",
+        "quality_rules": ["Must be from predefined enumeration", "Cannot be null"]
+      },
+      "Amount": {
+        "data_type": "Decimal",
+        "format_expectation": "Decimal number with currency precision",
+        "value_expectation": "Positive number for revenue events, may be negative for refunds",
+        "quality_rules": ["Must follow currency precision rules", "Cannot be null"]
+      },
+      "Event_Date": {
+        "data_type": "Date",
+        "format_expectation": "Valid date format (YYYY-MM-DD)",
+        "value_expectation": "Date when billing event occurred",
+        "quality_rules": ["Must be valid date", "Cannot be null"]
+      }
+    },
+    "Licenses": {
+      "License_ID": {
+        "data_type": "String",
+        "format_expectation": "Unique license identifier",
+        "value_expectation": "Non-null, unique across all licenses",
+        "quality_rules": ["Must be present for every record", "Must be unique"]
+      },
+      "License_Type": {
+        "data_type": "String",
+        "format_expectation": "Predefined license type",
+        "value_expectation": "Must be one of: Basic, Pro, Enterprise",
+        "quality_rules": ["Must be predefined license type", "Cannot be null"]
+      },
+      "Assigned_To_User_ID": {
+        "data_type": "String",
+        "format_expectation": "Valid User_ID reference or null",
+        "value_expectation": "Must reference existing User_ID or be null for unassigned licenses",
+        "quality_rules": ["Must exist in Users table if not null", "Null represents available capacity"]
+      },
+      "Start_Date": {
+        "data_type": "Date",
+        "format_expectation": "Valid date format (YYYY-MM-DD)",
+        "value_expectation": "License validity start date",
+        "quality_rules": ["Must be valid date", "Cannot be null"]
+      },
+      "End_Date": {
+        "data_type": "Date",
+        "format_expectation": "Valid date format (YYYY-MM-DD)",
+        "value_expectation": "License expiration date, must be after Start_Date",
+        "quality_rules": ["Must be valid date", "Must be greater than Start_Date", "Cannot be null"]
+      }
+    }
+  },
+  "Constraints": {
+    "primary_keys": {
+      "Users": ["User_ID"],
+      "Meetings": ["Meeting_ID"],
+      "Attendees": ["Meeting_ID", "User_ID"],
+      "Features_Usage": ["Meeting_ID", "Feature_Name"],
+      "Support_Tickets": ["Ticket_ID"],
+      "Billing_Events": ["User_ID", "Event_Type"],
+      "Licenses": ["License_ID"]
+    },
+    "foreign_keys": {
+      "Meetings": {
+        "Host_ID": {
+          "references_table": "Users",
+          "references_column": "User_ID",
+          "constraint_type": "RESTRICT"
+        }
+      },
+      "Attendees": {
+        "Meeting_ID": {
+          "references_table": "Meetings",
+          "references_column": "Meeting_ID",
+          "constraint_type": "CASCADE"
+        },
+        "User_ID": {
+          "references_table": "Users",
+          "references_column": "User_ID",
+          "constraint_type": "RESTRICT"
+        }
+      },
+      "Features_Usage": {
+        "Meeting_ID": {
+          "references_table": "Meetings",
+          "references_column": "Meeting_ID",
+          "constraint_type": "CASCADE"
+        }
+      },
+      "Support_Tickets": {
+        "User_ID": {
+          "references_table": "Users",
+          "references_column": "User_ID",
+          "constraint_type": "RESTRICT"
+        }
+      },
+      "Billing_Events": {
+        "User_ID": {
+          "references_table": "Users",
+          "references_column": "User_ID",
+          "constraint_type": "RESTRICT"
+        }
+      },
+      "Licenses": {
+        "Assigned_To_User_ID": {
+          "references_table": "Users",
+          "references_column": "User_ID",
+          "constraint_type": "SET_NULL"
+        }
+      }
+    },
+    "unique_constraints": {
+      "Users": ["Email"],
+      "Meetings": [],
+      "Attendees": [],
+      "Features_Usage": [],
+      "Support_Tickets": [],
+      "Billing_Events": [],
+      "Licenses": []
+    },
+    "nullability_rules": {
+      "Users": {
+        "not_null_columns": ["User_ID", "Plan_Type", "Email", "User_Name"],
+        "nullable_columns": ["Company"]
+      },
+      "Meetings": {
+        "not_null_columns": ["Meeting_ID", "Host_ID", "Duration_Minutes", "Start_Time", "End_Time"],
+        "nullable_columns": []
+      },
+      "Attendees": {
+        "not_null_columns": ["Meeting_ID", "User_ID"],
+        "nullable_columns": []
+      },
+      "Features_Usage": {
+        "not_null_columns": ["Meeting_ID", "Feature_Name", "Usage_Count"],
+        "nullable_columns": []
+      },
+      "Support_Tickets": {
+        "not_null_columns": ["Ticket_ID", "User_ID", "Ticket_Type", "Resolution_Status", "Open_Date"],
+        "nullable_columns": []
+      },
+      "Billing_Events": {
+        "not_null_columns": ["User_ID", "Event_Type", "Amount", "Event_Date"],
+        "nullable_columns": []
+      },
+      "Licenses": {
+        "not_null_columns": ["License_ID", "License_Type", "Start_Date", "End_Date"],
+        "nullable_columns": ["Assigned_To_User_ID"]
+      }
+    },
+    "check_constraints": {
+      "Meetings": {
+        "duration_non_negative": "Duration_Minutes >= 0",
+        "end_after_start": "End_Time > Start_Time"
+      },
+      "Features_Usage": {
+        "usage_count_positive": "Usage_Count > 0"
+      },
+      "Billing_Events": {
+        "amount_precision": "Amount DECIMAL(10,2)"
+      },
+      "Licenses": {
+        "end_after_start": "End_Date > Start_Date"
+      }
+    },
+    "enumeration_constraints": {
+      "Users": {
+        "Plan_Type": ["Free", "Basic", "Pro", "Enterprise"]
+      },
+      "Features_Usage": {
+        "Feature_Name": ["Screen Share", "Recording", "Chat", "Breakout Rooms", "Whiteboard", "Polling", "Annotation"]
+      },
+      "Support_Tickets": {
+        "Ticket_Type": ["Audio Issues", "Connectivity Problems", "Billing", "Feature Request", "Technical Support", "Account Management"],
+        "Resolution_Status": ["Open", "In Progress", "Resolved", "Closed"]
+      },
+      "Billing_Events": {
+        "Event_Type": ["Subscription", "Upgrade", "Downgrade", "Refund"]
+      },
+      "Licenses": {
+        "License_Type": ["Basic", "Pro", "Enterprise"]
+      }
+    }
+  },
+  "BusinessRules": {
+    "data_integrity_rules": {
+      "user_management": [
+        "Email must be unique across all users",
+        "Plan_Type determines access control and feature availability",
+        "User_Name and Email are sensitive data requiring masking for non-authorized users"
+      ],
+      "meeting_management": [
+        "End_Time must be greater than Start_Time",
+        "Duration_Minutes should align with calculated time difference between Start_Time and End_Time",
+        "Every meeting must have exactly one host",
+        "Meeting host is automatically included as an attendee"
+      ],
+      "attendance_tracking": [
+        "Composite primary key (Meeting_ID, User_ID) ensures unique user-meeting combinations",
+        "Host is automatically considered an attendee",
+        "Tracks user participation across all meetings"
+      ],
+      "feature_usage_tracking": [
+        "Feature_Name must be from predefined list of available features",
+        "Usage_Count represents frequency of use within a single meeting",
+        "Each feature used in a meeting creates a separate record"
+      ],
+      "support_ticket_management": [
+        "Ticket lifecycle: Open -> In Progress -> Resolved -> Closed",
+        "Resolution time calculated from Open_Date to status change timestamp",
+        "Tracks all support interactions per user"
+      ],
+      "billing_and_revenue": [
+        "Amount must be positive for revenue events",
+        "Refund events may have negative amounts",
+        "Event_Type determines revenue recognition rules",
+        "Tracks complete billing history per user"
+      ],
+      "license_management": [
+        "End_Date must be greater than Start_Date",
+        "License_Type must align with User's Plan_Type when assigned",
+        "Unassigned licenses (Assigned_To_User_ID = null) represent available capacity",
+        "Supports license history and concurrent license assignments"
+      ]
+    },
+    "referential_integrity_rules": [
+      "All foreign key relationships must be maintained",
+      "Cascade delete rules should be defined for data cleanup",
+      "Orphaned records should be prevented through proper constraints",
+      "Meeting deletion should cascade to Attendees and Features_Usage",
+      "User deletion should be restricted if referenced by active records"
+    ],
+    "business_logic_rules": {
+      "platform_usage_analytics": [
+        "Daily/Weekly/Monthly Active Users calculated from Attendees and Meetings data",
+        "Feature adoption rates calculated from Features_Usage frequency",
+        "Meeting duration trends analyzed from Duration_Minutes",
+        "New user sign-up trends tracked through User creation timestamps"
+      ],
+      "service_reliability_metrics": [
+        "Ticket volume calculated by Ticket_Type and time periods",
+        "Average resolution time calculated from Open_Date to status changes",
+        "Support efficiency measured as tickets per 1,000 active users",
+        "First-contact resolution tracked through ticket status transitions"
+      ],
+      "revenue_and_license_analytics": [
+        "Monthly Recurring Revenue (MRR) calculated from Billing_Events",
+        "License utilization rate calculated from assigned vs. total licenses",
+        "Customer lifetime value derived from billing history",
+        "Churn rate analysis based on license expiration and renewal patterns"
+      ]
+    },
+    "data_quality_rules": [
+      "Duration_Minutes must be non-negative integer",
+      "Start_Time and End_Time must be valid timestamps with End_Time > Start_Time",
+      "Amount in Billing_Events must follow currency precision rules",
+      "Start_Date must be before End_Date in Licenses",
+      "Email addresses must follow valid email format validation",
+      "Ticket_Type and Resolution_Status must be from predefined enumerations",
+      "Feature_Name must exist in system feature catalog"
+    ],
+    "security_and_privacy_rules": [
+      "Mask Email and User_Name for non-authorized users",
+      "Implement row-level security based on Plan_Type",
+      "Audit trail required for all data access",
+      "Encryption required for sensitive data at rest and in transit",
+      "Role-based access control for different user types",
+      "Account-specific filtering for Account Managers",
+      "Team-specific filtering for Support Team Leads"
+    ],
+    "performance_and_scalability_rules": [
+      "Create indices on User_ID, Meeting_ID, and date fields for query optimization",
+      "Implement data partitioning on date fields for large tables",
+      "Consider materialized views for frequently accessed aggregations",
+      "Implement caching strategy for dashboard queries",
+      "Design for horizontal scaling of meeting and usage data",
+      "Implement archiving strategy for historical data retention"
+    ],
+    "compliance_and_governance_rules": [
+      "Data retention policies must be defined for each entity",
+      "Data lineage must be maintained from source to consumption",
+      "Change data capture required for audit purposes",
+      "Data validation against schema constraints in ETL pipelines",
+      "Medallion architecture implementation with Bronze, Silver, and Gold layers",
+      "Real-time and batch processing capabilities must be supported"
+    ]
+  }
+}
