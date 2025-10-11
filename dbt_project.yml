@@ -17,5 +17,4 @@ clean-targets:
 
 models:
   MyProject01:
-    bronze:
-      +materialized: table
+    +materialized: table
