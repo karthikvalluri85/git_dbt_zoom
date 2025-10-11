@@ -1,0 +1,475 @@
+{
+  "conceptual_data_model": {
+    "metadata": {
+      "model_name": "Zoom Platform Analytics System - Conceptual Data Model",
+      "version": "1.0",
+      "created_date": "2024-12-19",
+      "author": "Senior Data Model Analyst",
+      "description": "Comprehensive conceptual data model for Zoom Platform Analytics System supporting Platform Usage & Adoption, Service Reliability & Support, and Revenue & License Analysis reports",
+      "source_feature": "SCRUM-44: Zoom Platform Analytics System - Core Reporting",
+      "source_user_stories": [
+        "SCRUM-45: Data Modelling",
+        "SCRUM-46: Pipeline Creation",
+        "SCRUM-47: Medallion Model Creation",
+        "SCRUM-48: Report Creation"
+      ]
+    },
+    "business_context": {
+      "purpose": "Support analytical reporting and decision-making for Zoom platform operations",
+      "key_reports": [
+        "Platform Usage & Adoption Report",
+        "Service Reliability & Support Report",
+        "Revenue and License Analysis Report"
+      ],
+      "stakeholders": [
+        "Product Managers",
+        "Marketing Team",
+        "Executives",
+        "Support Team Leads",
+        "Finance & Sales Teams",
+        "Account Managers"
+      ]
+    },
+    "entities": {
+      "Users": {
+        "description": "Core entity representing all platform users",
+        "business_purpose": "Track user demographics, plan types, and company affiliations for usage analysis and revenue tracking",
+        "attributes": {
+          "User_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_nullable": false,
+            "description": "Unique identifier for each user"
+          },
+          "Plan_Type": {
+            "data_type": "String",
+            "is_nullable": false,
+            "description": "User's subscription plan (Free, Basic, Pro, Enterprise)",
+            "constraints": ["Must be from predefined list of plan types"]
+          },
+          "Company": {
+            "data_type": "String",
+            "is_nullable": true,
+            "description": "Company or organization name"
+          },
+          "Email": {
+            "data_type": "String",
+            "is_nullable": false,
+            "description": "User's email address",
+            "security_note": "Sensitive data - mask for non-authorized users"
+          },
+          "User_Name": {
+            "data_type": "String",
+            "is_nullable": false,
+            "description": "User's display name",
+            "security_note": "Sensitive data - mask for non-authorized users"
+          }
+        },
+        "business_rules": [
+          "Email must be unique across all users",
+          "Plan_Type determines access control and feature availability"
+        ]
+      },
+      "Meetings": {
+        "description": "Entity representing all meetings conducted on the platform",
+        "business_purpose": "Track meeting activity, duration, and hosting patterns for usage analytics",
+        "attributes": {
+          "Meeting_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_nullable": false,
+            "description": "Unique identifier for each meeting"
+          },
+          "Host_ID": {
+            "data_type": "String",
+            "is_foreign_key": true,
+            "references": "Users.User_ID",
+            "is_nullable": false,
+            "description": "ID of the user who hosted the meeting"
+          },
+          "Duration_Minutes": {
+            "data_type": "Integer",
+            "is_nullable": false,
+            "description": "Meeting duration in minutes",
+            "constraints": ["Must be non-negative integer"]
+          },
+          "Start_Time": {
+            "data_type": "Timestamp",
+            "is_nullable": false,
+            "description": "Meeting start timestamp",
+            "constraints": ["Must be valid timestamp"]
+          },
+          "End_Time": {
+            "data_type": "Timestamp",
+            "is_nullable": false,
+            "description": "Meeting end timestamp",
+            "constraints": ["Must be valid timestamp", "Must be after Start_Time"]
+          }
+        },
+        "business_rules": [
+          "End_Time must be greater than Start_Time",
+          "Duration_Minutes should align with calculated time difference between Start_Time and End_Time"
+        ]
+      },
+      "Attendees": {
+        "description": "Junction entity linking users to meetings they attended",
+        "business_purpose": "Track meeting participation for engagement analysis and active user calculations",
+        "attributes": {
+          "Meeting_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_foreign_key": true,
+            "references": "Meetings.Meeting_ID",
+            "is_nullable": false,
+            "description": "ID of the meeting attended"
+          },
+          "User_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_foreign_key": true,
+            "references": "Users.User_ID",
+            "is_nullable": false,
+            "description": "ID of the user who attended"
+          }
+        },
+        "business_rules": [
+          "Composite primary key ensures unique user-meeting combinations",
+          "Host is automatically considered an attendee"
+        ]
+      },
+      "Features_Usage": {
+        "description": "Entity tracking feature usage within meetings",
+        "business_purpose": "Monitor feature adoption rates and usage patterns for product development insights",
+        "attributes": {
+          "Meeting_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_foreign_key": true,
+            "references": "Meetings.Meeting_ID",
+            "is_nullable": false,
+            "description": "ID of the meeting where feature was used"
+          },
+          "Feature_Name": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_nullable": false,
+            "description": "Name of the feature used (e.g., Screen Share, Recording, Chat)"
+          },
+          "Usage_Count": {
+            "data_type": "Integer",
+            "is_nullable": false,
+            "description": "Number of times the feature was used in the meeting",
+            "constraints": ["Must be positive integer"]
+          }
+        },
+        "business_rules": [
+          "Feature_Name must be from predefined list of available features",
+          "Usage_Count represents frequency of use within a single meeting"
+        ]
+      },
+      "Support_Tickets": {
+        "description": "Entity representing customer support interactions",
+        "business_purpose": "Track support issues, resolution patterns, and service quality metrics",
+        "attributes": {
+          "Ticket_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_nullable": false,
+            "description": "Unique identifier for each support ticket"
+          },
+          "User_ID": {
+            "data_type": "String",
+            "is_foreign_key": true,
+            "references": "Users.User_ID",
+            "is_nullable": false,
+            "description": "ID of the user who raised the ticket"
+          },
+          "Ticket_Type": {
+            "data_type": "String",
+            "is_nullable": false,
+            "description": "Category of the support issue (e.g., Audio Issues, Connectivity Problems, Billing)",
+            "constraints": ["Must be from predefined list of ticket types"]
+          },
+          "Resolution_Status": {
+            "data_type": "String",
+            "is_nullable": false,
+            "description": "Current status of the ticket (Open, In Progress, Resolved, Closed)",
+            "constraints": ["Must be from predefined list of status values"]
+          },
+          "Open_Date": {
+            "data_type": "Date",
+            "is_nullable": false,
+            "description": "Date when the ticket was created",
+            "constraints": ["Must be valid date"]
+          }
+        },
+        "business_rules": [
+          "Ticket lifecycle: Open -> In Progress -> Resolved -> Closed",
+          "Resolution time calculated from Open_Date to status change timestamp"
+        ]
+      },
+      "Billing_Events": {
+        "description": "Entity tracking all billing and payment activities",
+        "business_purpose": "Monitor revenue streams, payment patterns, and financial performance",
+        "attributes": {
+          "User_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_foreign_key": true,
+            "references": "Users.User_ID",
+            "is_nullable": false,
+            "description": "ID of the user associated with the billing event"
+          },
+          "Event_Type": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_nullable": false,
+            "description": "Type of billing event (Subscription, Upgrade, Downgrade, Refund)"
+          },
+          "Amount": {
+            "data_type": "Decimal",
+            "is_nullable": false,
+            "description": "Monetary amount of the billing event",
+            "constraints": ["Must be positive number"]
+          },
+          "Event_Date": {
+            "data_type": "Date",
+            "is_nullable": false,
+            "description": "Date when the billing event occurred"
+          }
+        },
+        "business_rules": [
+          "Amount must be positive for revenue events",
+          "Refund events may have negative amounts",
+          "Event_Type determines revenue recognition rules"
+        ]
+      },
+      "Licenses": {
+        "description": "Entity managing license assignments and lifecycle",
+        "business_purpose": "Track license utilization, expiration patterns, and capacity planning",
+        "attributes": {
+          "License_ID": {
+            "data_type": "String",
+            "is_primary_key": true,
+            "is_nullable": false,
+            "description": "Unique identifier for each license"
+          },
+          "License_Type": {
+            "data_type": "String",
+            "is_nullable": false,
+            "description": "Type of license (Basic, Pro, Enterprise)",
+            "constraints": ["Must be predefined license type"]
+          },
+          "Assigned_To_User_ID": {
+            "data_type": "String",
+            "is_foreign_key": true,
+            "references": "Users.User_ID",
+            "is_nullable": true,
+            "description": "ID of user assigned to this license (null if unassigned)"
+          },
+          "Start_Date": {
+            "data_type": "Date",
+            "is_nullable": false,
+            "description": "License validity start date",
+            "constraints": ["Must be valid date"]
+          },
+          "End_Date": {
+            "data_type": "Date",
+            "is_nullable": false,
+            "description": "License expiration date",
+            "constraints": ["Must be valid date", "Must be after Start_Date"]
+          }
+        },
+        "business_rules": [
+          "End_Date must be greater than Start_Date",
+          "License_Type must align with User's Plan_Type when assigned",
+          "Unassigned licenses (Assigned_To_User_ID = null) represent available capacity"
+        ]
+      }
+    },
+    "relationships": {
+      "Users_to_Meetings": {
+        "type": "One-to-Many",
+        "from_entity": "Users",
+        "to_entity": "Meetings",
+        "foreign_key": "Host_ID",
+        "description": "A user can host multiple meetings",
+        "business_rule": "Every meeting must have exactly one host"
+      },
+      "Meetings_to_Attendees": {
+        "type": "One-to-Many",
+        "from_entity": "Meetings",
+        "to_entity": "Attendees",
+        "foreign_key": "Meeting_ID",
+        "description": "A meeting can have multiple attendees",
+        "business_rule": "Meeting host is automatically included as an attendee"
+      },
+      "Users_to_Attendees": {
+        "type": "One-to-Many",
+        "from_entity": "Users",
+        "to_entity": "Attendees",
+        "foreign_key": "User_ID",
+        "description": "A user can attend multiple meetings",
+        "business_rule": "Tracks user participation across all meetings"
+      },
+      "Meetings_to_Features_Usage": {
+        "type": "One-to-Many",
+        "from_entity": "Meetings",
+        "to_entity": "Features_Usage",
+        "foreign_key": "Meeting_ID",
+        "description": "A meeting can have multiple feature usage records",
+        "business_rule": "Each feature used in a meeting creates a separate record"
+      },
+      "Users_to_Support_Tickets": {
+        "type": "One-to-Many",
+        "from_entity": "Users",
+        "to_entity": "Support_Tickets",
+        "foreign_key": "User_ID",
+        "description": "A user can raise multiple support tickets",
+        "business_rule": "Tracks all support interactions per user"
+      },
+      "Users_to_Billing_Events": {
+        "type": "One-to-Many",
+        "from_entity": "Users",
+        "to_entity": "Billing_Events",
+        "foreign_key": "User_ID",
+        "description": "A user can have multiple billing events",
+        "business_rule": "Tracks complete billing history per user"
+      },
+      "Users_to_Licenses": {
+        "type": "One-to-Many",
+        "from_entity": "Users",
+        "to_entity": "Licenses",
+        "foreign_key": "Assigned_To_User_ID",
+        "description": "A user can be assigned multiple licenses over time",
+        "business_rule": "Supports license history and concurrent license assignments"
+      }
+    },
+    "data_constraints": {
+      "referential_integrity": [
+        "All foreign key relationships must be maintained",
+        "Cascade delete rules should be defined for data cleanup",
+        "Orphaned records should be prevented through proper constraints"
+      ],
+      "data_quality": [
+        "Duration_Minutes must be non-negative integer",
+        "Start_Time and End_Time must be valid timestamps with End_Time > Start_Time",
+        "Amount in Billing_Events must be positive number",
+        "Start_Date must be before End_Date in Licenses",
+        "Email addresses must follow valid email format",
+        "Ticket_Type and Resolution_Status must be from predefined enumerations"
+      ],
+      "business_constraints": [
+        "User Plan_Type must align with assigned License_Type",
+        "Meeting host must be included in Attendees table",
+        "Feature_Name must exist in system feature catalog",
+        "Billing event amounts must follow currency precision rules"
+      ]
+    },
+    "key_metrics_supported": {
+      "platform_usage_adoption": [
+        "Daily/Weekly/Monthly Active Users (DAU/WAU/MAU)",
+        "Total meeting minutes per period",
+        "Average meeting duration",
+        "Meetings per user",
+        "Feature adoption rates",
+        "New user sign-up trends"
+      ],
+      "service_reliability_support": [
+        "Ticket volume by type and period",
+        "Average ticket resolution time",
+        "First-contact resolution rate",
+        "Tickets per 1,000 active users",
+        "Support team efficiency metrics"
+      ],
+      "revenue_license_analysis": [
+        "Monthly Recurring Revenue (MRR)",
+        "Revenue by plan type",
+        "License utilization rate",
+        "License expiration forecasting",
+        "Customer lifetime value",
+        "Churn rate analysis"
+      ]
+    },
+    "access_control_requirements": {
+      "role_based_access": {
+        "Product_Managers": {
+          "access_level": "Full",
+          "data_scope": "Feature adoption and user behavior data",
+          "restrictions": "None"
+        },
+        "Marketing_Team": {
+          "access_level": "Filtered",
+          "data_scope": "New user and plan-type data",
+          "restrictions": "No access to individual user details"
+        },
+        "Executives": {
+          "access_level": "Aggregated",
+          "data_scope": "Key usage metrics with drill-down capability",
+          "restrictions": "Aggregated views only, no individual records"
+        },
+        "Support_Team_Leads": {
+          "access_level": "Full",
+          "data_scope": "All ticket data for their team",
+          "restrictions": "Team-specific filtering"
+        },
+        "Finance_Sales_Teams": {
+          "access_level": "Full",
+          "data_scope": "Revenue and license data",
+          "restrictions": "Financial data only"
+        },
+        "Account_Managers": {
+          "access_level": "Filtered",
+          "data_scope": "Assigned accounts only",
+          "restrictions": "Account-specific filtering"
+        }
+      },
+      "data_privacy": [
+        "Mask Email and User_Name for non-authorized users",
+        "Implement row-level security based on Plan_Type",
+        "Audit trail for all data access",
+        "Encryption for sensitive data at rest and in transit"
+      ]
+    },
+    "technical_implementation_notes": {
+      "performance_optimization": [
+        "Create indices on User_ID, Meeting_ID, and date fields",
+        "Implement data partitioning on date fields for large tables",
+        "Consider materialized views for frequently accessed aggregations",
+        "Implement caching for dashboard queries"
+      ],
+      "data_integration": [
+        "ETL pipelines for data extraction, transformation, and loading",
+        "Data validation against schema constraints",
+        "Medallion architecture with Bronze, Silver, and Gold layers",
+        "Real-time and batch processing capabilities"
+      ],
+      "scalability_considerations": [
+        "Design for horizontal scaling of meeting and usage data",
+        "Implement archiving strategy for historical data",
+        "Consider time-series database for high-frequency metrics",
+        "Plan for multi-tenant architecture if needed"
+      ]
+    },
+    "data_lineage": {
+      "source_systems": [
+        "Zoom Meeting Platform",
+        "User Management System",
+        "Support Ticketing System",
+        "Billing and Payment System",
+        "License Management System"
+      ],
+      "transformation_layers": [
+        "Bronze Layer: Raw data ingestion",
+        "Silver Layer: Cleaned and validated data",
+        "Gold Layer: Business-ready datasets with pre-calculated KPIs"
+      ],
+      "consumption_layers": [
+        "Analytics Dashboards",
+        "Operational Reports",
+        "Executive Summaries",
+        "API Endpoints for applications"
+      ]
+    }
+  }
+}
