@@ -1,22 +1,17 @@
-/*
-* Model: bz_licenses
-* Description: Bronze layer table for license data from Zoom
-*/
+{{{
+  config(
+    materialized='table'
+  )
+}}}
 
-{{ config(
-    materialized='table',
-    unique_key='license_id'
-) }}
-
--- Extract and transform data from raw licenses table
+-- Transform raw licenses data to bronze layer
 SELECT
-    license_id,
-    license_type,
-    assigned_to_user_id,
-    start_date,
-    end_date,
-    -- Metadata columns
-    CURRENT_TIMESTAMP() as load_timestamp,
-    CURRENT_TIMESTAMP() as update_timestamp,
-    'ZOOM_PLATFORM' as source_system
-FROM ZOOM_DATABASE.RAW.licenses
+  license_id,
+  license_type,
+  assigned_to_user_id,
+  start_date,
+  end_date,
+  CURRENT_TIMESTAMP() AS load_timestamp,
+  CURRENT_TIMESTAMP() AS update_timestamp,
+  'ZOOM_PLATFORM' AS source_system
+FROM {{ source('raw', 'licenses') }}
