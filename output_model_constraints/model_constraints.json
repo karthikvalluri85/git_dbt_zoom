@@ -1,0 +1,495 @@
+{
+  "data_expectations": [
+    {
+      "entity": "Users",
+      "field": "User_ID",
+      "expectation_type": "uniqueness",
+      "description": "User_ID must be unique across all users",
+      "data_quality_rule": "No duplicate User_ID values allowed",
+      "format_requirement": "String format, non-null"
+    },
+    {
+      "entity": "Users",
+      "field": "Plan_Type",
+      "expectation_type": "enumeration",
+      "description": "Plan_Type must be from predefined list",
+      "data_quality_rule": "Must be one of: Free, Basic, Pro, Enterprise",
+      "format_requirement": "String format, non-null"
+    },
+    {
+      "entity": "Users",
+      "field": "Email",
+      "expectation_type": "format_validation",
+      "description": "Email must follow valid email format",
+      "data_quality_rule": "Must contain @ symbol and valid domain structure",
+      "format_requirement": "Valid email format, unique across all users"
+    },
+    {
+      "entity": "Meetings",
+      "field": "Duration_Minutes",
+      "expectation_type": "range_validation",
+      "description": "Duration must be non-negative integer",
+      "data_quality_rule": "Value >= 0",
+      "format_requirement": "Integer format, non-null"
+    },
+    {
+      "entity": "Meetings",
+      "field": "Start_Time",
+      "expectation_type": "timestamp_validation",
+      "description": "Start_Time must be valid timestamp",
+      "data_quality_rule": "Must be valid timestamp format",
+      "format_requirement": "Timestamp format, non-null"
+    },
+    {
+      "entity": "Meetings",
+      "field": "End_Time",
+      "expectation_type": "timestamp_validation",
+      "description": "End_Time must be valid timestamp and after Start_Time",
+      "data_quality_rule": "Must be valid timestamp and End_Time > Start_Time",
+      "format_requirement": "Timestamp format, non-null"
+    },
+    {
+      "entity": "Features_Usage",
+      "field": "Feature_Name",
+      "expectation_type": "enumeration",
+      "description": "Feature_Name must be from predefined feature catalog",
+      "data_quality_rule": "Must exist in system feature catalog (e.g., Screen Share, Recording, Chat)",
+      "format_requirement": "String format, non-null"
+    },
+    {
+      "entity": "Features_Usage",
+      "field": "Usage_Count",
+      "expectation_type": "range_validation",
+      "description": "Usage_Count must be positive integer",
+      "data_quality_rule": "Value > 0",
+      "format_requirement": "Integer format, non-null"
+    },
+    {
+      "entity": "Support_Tickets",
+      "field": "Ticket_Type",
+      "expectation_type": "enumeration",
+      "description": "Ticket_Type must be from predefined list",
+      "data_quality_rule": "Must be one of: Audio Issues, Connectivity Problems, Billing, etc.",
+      "format_requirement": "String format, non-null"
+    },
+    {
+      "entity": "Support_Tickets",
+      "field": "Resolution_Status",
+      "expectation_type": "enumeration",
+      "description": "Resolution_Status must follow predefined workflow",
+      "data_quality_rule": "Must be one of: Open, In Progress, Resolved, Closed",
+      "format_requirement": "String format, non-null"
+    },
+    {
+      "entity": "Billing_Events",
+      "field": "Amount",
+      "expectation_type": "range_validation",
+      "description": "Amount must be positive number for revenue events",
+      "data_quality_rule": "Value > 0 for most events, may be negative for refunds",
+      "format_requirement": "Decimal format with currency precision, non-null"
+    },
+    {
+      "entity": "Licenses",
+      "field": "License_Type",
+      "expectation_type": "enumeration",
+      "description": "License_Type must be predefined license type",
+      "data_quality_rule": "Must be one of: Basic, Pro, Enterprise",
+      "format_requirement": "String format, non-null"
+    },
+    {
+      "entity": "Licenses",
+      "field": "Start_Date",
+      "expectation_type": "date_validation",
+      "description": "Start_Date must be valid date",
+      "data_quality_rule": "Must be valid date format",
+      "format_requirement": "Date format, non-null"
+    },
+    {
+      "entity": "Licenses",
+      "field": "End_Date",
+      "expectation_type": "date_validation",
+      "description": "End_Date must be valid date and after Start_Date",
+      "data_quality_rule": "Must be valid date and End_Date > Start_Date",
+      "format_requirement": "Date format, non-null"
+    }
+  ],
+  "constraints": [
+    {
+      "constraint_type": "primary_key",
+      "entity": "Users",
+      "fields": ["User_ID"],
+      "description": "User_ID serves as the primary key for Users entity",
+      "enforcement_rule": "Must be unique and non-null"
+    },
+    {
+      "constraint_type": "primary_key",
+      "entity": "Meetings",
+      "fields": ["Meeting_ID"],
+      "description": "Meeting_ID serves as the primary key for Meetings entity",
+      "enforcement_rule": "Must be unique and non-null"
+    },
+    {
+      "constraint_type": "primary_key",
+      "entity": "Attendees",
+      "fields": ["Meeting_ID", "User_ID"],
+      "description": "Composite primary key for Attendees entity",
+      "enforcement_rule": "Combination of Meeting_ID and User_ID must be unique"
+    },
+    {
+      "constraint_type": "primary_key",
+      "entity": "Features_Usage",
+      "fields": ["Meeting_ID", "Feature_Name"],
+      "description": "Composite primary key for Features_Usage entity",
+      "enforcement_rule": "Combination of Meeting_ID and Feature_Name must be unique"
+    },
+    {
+      "constraint_type": "primary_key",
+      "entity": "Support_Tickets",
+      "fields": ["Ticket_ID"],
+      "description": "Ticket_ID serves as the primary key for Support_Tickets entity",
+      "enforcement_rule": "Must be unique and non-null"
+    },
+    {
+      "constraint_type": "primary_key",
+      "entity": "Billing_Events",
+      "fields": ["User_ID", "Event_Type"],
+      "description": "Composite primary key for Billing_Events entity",
+      "enforcement_rule": "Combination of User_ID and Event_Type must be unique"
+    },
+    {
+      "constraint_type": "primary_key",
+      "entity": "Licenses",
+      "fields": ["License_ID"],
+      "description": "License_ID serves as the primary key for Licenses entity",
+      "enforcement_rule": "Must be unique and non-null"
+    },
+    {
+      "constraint_type": "foreign_key",
+      "entity": "Meetings",
+      "field": "Host_ID",
+      "references": "Users.User_ID",
+      "description": "Host_ID references Users.User_ID",
+      "enforcement_rule": "Must exist in Users table"
+    },
+    {
+      "constraint_type": "foreign_key",
+      "entity": "Attendees",
+      "field": "Meeting_ID",
+      "references": "Meetings.Meeting_ID",
+      "description": "Meeting_ID references Meetings.Meeting_ID",
+      "enforcement_rule": "Must exist in Meetings table"
+    },
+    {
+      "constraint_type": "foreign_key",
+      "entity": "Attendees",
+      "field": "User_ID",
+      "references": "Users.User_ID",
+      "description": "User_ID references Users.User_ID",
+      "enforcement_rule": "Must exist in Users table"
+    },
+    {
+      "constraint_type": "foreign_key",
+      "entity": "Features_Usage",
+      "field": "Meeting_ID",
+      "references": "Meetings.Meeting_ID",
+      "description": "Meeting_ID references Meetings.Meeting_ID",
+      "enforcement_rule": "Must exist in Meetings table"
+    },
+    {
+      "constraint_type": "foreign_key",
+      "entity": "Support_Tickets",
+      "field": "User_ID",
+      "references": "Users.User_ID",
+      "description": "User_ID references Users.User_ID",
+      "enforcement_rule": "Must exist in Users table"
+    },
+    {
+      "constraint_type": "foreign_key",
+      "entity": "Billing_Events",
+      "field": "User_ID",
+      "references": "Users.User_ID",
+      "description": "User_ID references Users.User_ID",
+      "enforcement_rule": "Must exist in Users table"
+    },
+    {
+      "constraint_type": "foreign_key",
+      "entity": "Licenses",
+      "field": "Assigned_To_User_ID",
+      "references": "Users.User_ID",
+      "description": "Assigned_To_User_ID references Users.User_ID",
+      "enforcement_rule": "Must exist in Users table when not null"
+    },
+    {
+      "constraint_type": "unique",
+      "entity": "Users",
+      "field": "Email",
+      "description": "Email must be unique across all users",
+      "enforcement_rule": "No duplicate email addresses allowed"
+    },
+    {
+      "constraint_type": "not_null",
+      "entity": "Users",
+      "fields": ["User_ID", "Plan_Type", "Email", "User_Name"],
+      "description": "Core user fields cannot be null",
+      "enforcement_rule": "These fields must have values"
+    },
+    {
+      "constraint_type": "not_null",
+      "entity": "Meetings",
+      "fields": ["Meeting_ID", "Host_ID", "Duration_Minutes", "Start_Time", "End_Time"],
+      "description": "Core meeting fields cannot be null",
+      "enforcement_rule": "These fields must have values"
+    },
+    {
+      "constraint_type": "not_null",
+      "entity": "Features_Usage",
+      "fields": ["Meeting_ID", "Feature_Name", "Usage_Count"],
+      "description": "All feature usage fields cannot be null",
+      "enforcement_rule": "These fields must have values"
+    },
+    {
+      "constraint_type": "not_null",
+      "entity": "Support_Tickets",
+      "fields": ["Ticket_ID", "User_ID", "Ticket_Type", "Resolution_Status", "Open_Date"],
+      "description": "Core support ticket fields cannot be null",
+      "enforcement_rule": "These fields must have values"
+    },
+    {
+      "constraint_type": "not_null",
+      "entity": "Billing_Events",
+      "fields": ["User_ID", "Event_Type", "Amount", "Event_Date"],
+      "description": "All billing event fields cannot be null",
+      "enforcement_rule": "These fields must have values"
+    },
+    {
+      "constraint_type": "not_null",
+      "entity": "Licenses",
+      "fields": ["License_ID", "License_Type", "Start_Date", "End_Date"],
+      "description": "Core license fields cannot be null",
+      "enforcement_rule": "These fields must have values"
+    }
+  ],
+  "business_rules": [
+    {
+      "rule_id": "BR001",
+      "rule_name": "Email Uniqueness",
+      "entity": "Users",
+      "description": "Email must be unique across all users",
+      "rule_logic": "Each email address can only be associated with one user account",
+      "enforcement_level": "Critical",
+      "validation_method": "Database constraint and application validation"
+    },
+    {
+      "rule_id": "BR002",
+      "rule_name": "Plan Type Access Control",
+      "entity": "Users",
+      "description": "Plan_Type determines access control and feature availability",
+      "rule_logic": "User capabilities and permissions are determined by their plan type",
+      "enforcement_level": "Critical",
+      "validation_method": "Application logic validation"
+    },
+    {
+      "rule_id": "BR003",
+      "rule_name": "Meeting Time Validation",
+      "entity": "Meetings",
+      "description": "End_Time must be greater than Start_Time",
+      "rule_logic": "End_Time > Start_Time for all meetings",
+      "enforcement_level": "Critical",
+      "validation_method": "Database check constraint and application validation"
+    },
+    {
+      "rule_id": "BR004",
+      "rule_name": "Duration Consistency",
+      "entity": "Meetings",
+      "description": "Duration_Minutes should align with calculated time difference between Start_Time and End_Time",
+      "rule_logic": "Duration_Minutes = DATEDIFF(minute, Start_Time, End_Time)",
+      "enforcement_level": "High",
+      "validation_method": "Data quality checks and ETL validation"
+    },
+    {
+      "rule_id": "BR005",
+      "rule_name": "Attendee Uniqueness",
+      "entity": "Attendees",
+      "description": "Composite primary key ensures unique user-meeting combinations",
+      "rule_logic": "Each user can only have one attendance record per meeting",
+      "enforcement_level": "Critical",
+      "validation_method": "Database composite primary key constraint"
+    },
+    {
+      "rule_id": "BR006",
+      "rule_name": "Host Attendance",
+      "entity": "Attendees",
+      "description": "Host is automatically considered an attendee",
+      "rule_logic": "Meeting host must have corresponding record in Attendees table",
+      "enforcement_level": "High",
+      "validation_method": "ETL process and data validation rules"
+    },
+    {
+      "rule_id": "BR007",
+      "rule_name": "Feature Catalog Validation",
+      "entity": "Features_Usage",
+      "description": "Feature_Name must be from predefined list of available features",
+      "rule_logic": "Feature_Name must exist in system feature catalog",
+      "enforcement_level": "Critical",
+      "validation_method": "Reference data validation"
+    },
+    {
+      "rule_id": "BR008",
+      "rule_name": "Usage Count Validation",
+      "entity": "Features_Usage",
+      "description": "Usage_Count represents frequency of use within a single meeting",
+      "rule_logic": "Usage_Count must be positive integer > 0",
+      "enforcement_level": "High",
+      "validation_method": "Database check constraint"
+    },
+    {
+      "rule_id": "BR009",
+      "rule_name": "Ticket Lifecycle",
+      "entity": "Support_Tickets",
+      "description": "Ticket lifecycle: Open -> In Progress -> Resolved -> Closed",
+      "rule_logic": "Status transitions must follow defined workflow",
+      "enforcement_level": "High",
+      "validation_method": "Application workflow validation"
+    },
+    {
+      "rule_id": "BR010",
+      "rule_name": "Resolution Time Calculation",
+      "entity": "Support_Tickets",
+      "description": "Resolution time calculated from Open_Date to status change timestamp",
+      "rule_logic": "Track time between status changes for SLA monitoring",
+      "enforcement_level": "Medium",
+      "validation_method": "Calculated field validation"
+    },
+    {
+      "rule_id": "BR011",
+      "rule_name": "Billing Amount Validation",
+      "entity": "Billing_Events",
+      "description": "Amount must be positive for revenue events",
+      "rule_logic": "Amount > 0 for Subscription, Upgrade events; may be negative for Refund events",
+      "enforcement_level": "Critical",
+      "validation_method": "Business logic validation based on Event_Type"
+    },
+    {
+      "rule_id": "BR012",
+      "rule_name": "Revenue Recognition",
+      "entity": "Billing_Events",
+      "description": "Event_Type determines revenue recognition rules",
+      "rule_logic": "Different event types follow different accounting rules",
+      "enforcement_level": "High",
+      "validation_method": "Financial reporting validation"
+    },
+    {
+      "rule_id": "BR013",
+      "rule_name": "License Date Validation",
+      "entity": "Licenses",
+      "description": "End_Date must be greater than Start_Date",
+      "rule_logic": "End_Date > Start_Date for all licenses",
+      "enforcement_level": "Critical",
+      "validation_method": "Database check constraint"
+    },
+    {
+      "rule_id": "BR014",
+      "rule_name": "License Plan Alignment",
+      "entity": "Licenses",
+      "description": "License_Type must align with User's Plan_Type when assigned",
+      "rule_logic": "Assigned license type should match user's current plan type",
+      "enforcement_level": "High",
+      "validation_method": "Cross-entity validation"
+    },
+    {
+      "rule_id": "BR015",
+      "rule_name": "License Capacity Management",
+      "entity": "Licenses",
+      "description": "Unassigned licenses (Assigned_To_User_ID = null) represent available capacity",
+      "rule_logic": "Track available license capacity for planning purposes",
+      "enforcement_level": "Medium",
+      "validation_method": "Capacity reporting validation"
+    },
+    {
+      "rule_id": "BR016",
+      "rule_name": "Data Privacy Masking",
+      "entity": "Users",
+      "description": "Mask Email and User_Name for non-authorized users",
+      "rule_logic": "Sensitive data must be masked based on user access permissions",
+      "enforcement_level": "Critical",
+      "validation_method": "Row-level security and data masking"
+    },
+    {
+      "rule_id": "BR017",
+      "rule_name": "Referential Integrity",
+      "entity": "All",
+      "description": "All foreign key relationships must be maintained",
+      "rule_logic": "No orphaned records allowed; cascade delete rules defined",
+      "enforcement_level": "Critical",
+      "validation_method": "Database foreign key constraints"
+    },
+    {
+      "rule_id": "BR018",
+      "rule_name": "Currency Precision",
+      "entity": "Billing_Events",
+      "description": "Billing event amounts must follow currency precision rules",
+      "rule_logic": "Amounts must be stored with appropriate decimal precision for currency",
+      "enforcement_level": "High",
+      "validation_method": "Data type validation and formatting rules"
+    },
+    {
+      "rule_id": "BR019",
+      "rule_name": "Meeting Host Requirement",
+      "entity": "Meetings",
+      "description": "Every meeting must have exactly one host",
+      "rule_logic": "Host_ID must reference valid User_ID and cannot be null",
+      "enforcement_level": "Critical",
+      "validation_method": "Foreign key constraint and not null constraint"
+    },
+    {
+      "rule_id": "BR020",
+      "rule_name": "Feature Usage Tracking",
+      "entity": "Features_Usage",
+      "description": "Each feature used in a meeting creates a separate record",
+      "rule_logic": "One record per feature per meeting with usage count",
+      "enforcement_level": "Medium",
+      "validation_method": "ETL process validation"
+    }
+  ],
+  "compliance_requirements": {
+    "data_governance": [
+      "Implement audit trail for all data access and modifications",
+      "Maintain data lineage documentation",
+      "Regular data quality assessments",
+      "Compliance with data retention policies"
+    ],
+    "security_compliance": [
+      "Encryption for sensitive data at rest and in transit",
+      "Role-based access control implementation",
+      "Regular security audits",
+      "Data masking for non-production environments"
+    ],
+    "regulatory_compliance": [
+      "GDPR compliance for user data",
+      "SOX compliance for financial data",
+      "Industry-specific regulations as applicable",
+      "Data subject rights management"
+    ]
+  },
+  "monitoring_and_alerting": {
+    "data_quality_monitors": [
+      "Null value detection in required fields",
+      "Data type validation failures",
+      "Referential integrity violations",
+      "Business rule violations",
+      "Data freshness monitoring"
+    ],
+    "performance_monitors": [
+      "Query performance degradation",
+      "ETL process failures",
+      "Data volume anomalies",
+      "System resource utilization"
+    ],
+    "compliance_monitors": [
+      "Unauthorized data access attempts",
+      "Data retention policy violations",
+      "Security policy breaches",
+      "Audit trail completeness"
+    ]
+  }
+}
